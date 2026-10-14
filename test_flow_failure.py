@@ -1,3 +1,4 @@
+from handoff_integrity import seal_handoff
 import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -22,6 +23,7 @@ def test_invalid_hour_blocks_modeling():
         df = pd.read_csv(data_path)
         df.loc[0, "post_hour"] = 99
         df.to_csv(data_path, index=False)
+        seal_handoff(artifacts)
 
         # Simulate the crews, but keep the real Flow and validator
         with (

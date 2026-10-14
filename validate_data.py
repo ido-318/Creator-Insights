@@ -1,3 +1,4 @@
+from contract_validation import validate_contract
 import json
 from pathlib import Path
 
@@ -5,7 +6,11 @@ import pandas as pd
 
 
 def validate_data(df, contract):
-    errors = []
+    errors = validate_contract(contract)
+
+    if errors:
+        return errors
+
     rules = contract["columns"]
 
     # Check required and unexpected columns

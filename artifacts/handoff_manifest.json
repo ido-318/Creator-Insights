@@ -1,0 +1,7 @@
+{
+  "manifest_version": "1.0",
+  "files": {
+    "clean_data.csv": "8f9208a8a3b46380f40b4ce48eada4a95576509c18f6b19574b11a626e7d6e02",
+    "dataset_contract.json": "bbdf146d36142a34210e5c056d615e012c9395402676e354f12207904ba614c1"
+  }
+}

@@ -1,3 +1,4 @@
+from handoff_integrity import verify_handoff
 import json
 from pathlib import Path
 
@@ -13,6 +14,8 @@ def inspect_modeling_input(artifacts=None):
         artifacts = Path(__file__).resolve().parent / "artifacts"
     else:
         artifacts = Path(artifacts)
+
+    verify_handoff(artifacts)
 
     contract = json.loads(
         (artifacts / "dataset_contract.json").read_text(
