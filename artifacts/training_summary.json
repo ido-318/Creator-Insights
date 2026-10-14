@@ -1,0 +1,47 @@
+{
+  "selected_model": "CatBoost depth 4",
+  "selection_method": "Lowest mean MAE in 5-fold training CV",
+  "training_rows": 399,
+  "test_rows": 100,
+  "features": [
+    "post_type",
+    "category",
+    "post_month",
+    "post_weekday",
+    "post_hour",
+    "paid"
+  ],
+  "target": "total_interactions",
+  "contract_version": "1.0",
+  "metric": "MAE",
+  "metric_unit": "interactions",
+  "lower_is_better": true,
+  "cross_validation": [
+    {
+      "model": "CatBoost depth 4",
+      "cv_mae_mean": 146.55167670975334,
+      "cv_mae_std": 56.940043265380496
+    },
+    {
+      "model": "CatBoost depth 3",
+      "cv_mae_mean": 146.70158216124273,
+      "cv_mae_std": 56.49045400734818
+    },
+    {
+      "model": "Baseline",
+      "cv_mae_mean": 152.43525316455697,
+      "cv_mae_std": 59.86025511823066
+    }
+  ],
+  "test_results": {
+    "baseline_mae": 120.45,
+    "selected_model_mae": 125.54448220152854,
+    "selected_model_beats_baseline": false
+  },
+  "limitations": [
+    "Historical data from one Facebook page",
+    "Random split does not evaluate future-period performance",
+    "The test set was inspected during development",
+    "Cross-validation results vary substantially across folds"
+  ]
+}

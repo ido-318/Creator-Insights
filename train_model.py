@@ -368,3 +368,44 @@ See cv_results.csv, data_split.csv and test_predictions.csv.
 )
 
 print("Saved evaluation_report.md and model_card.md")
+
+# Structured results for the modeling agents and the app
+training_summary = {
+    "selected_model": selected_name,
+    "selection_method": "Lowest mean MAE in 5-fold training CV",
+    "training_rows": len(X_train),
+    "test_rows": len(X_test),
+    "features": contract["features"],
+    "target": contract["target"],
+    "contract_version": contract["contract_version"],
+    "metric": "MAE",
+    "metric_unit": "interactions",
+    "lower_is_better": True,
+    "cross_validation": cv_results.to_dict(orient="records"),
+    "test_results": {
+        "baseline_mae": float(baseline_mae),
+        "selected_model_mae": float(selected_test_mae),
+        "selected_model_beats_baseline": bool(
+            selected_test_mae < baseline_mae
+        ),
+    },
+    "limitations": [
+        "Historical data from one Facebook page",
+        "Random split does not evaluate future-period performance",
+        "The test set was inspected during development",
+        "Cross-validation results vary substantially across folds",
+    ],
+}
+
+summary_path = artifacts / "training_summary.json"
+summary_path.write_text(
+    json.dumps(
+        training_summary,
+        ensure_ascii=False,
+        indent=2,
+        allow_nan=False,
+    ),
+    encoding="utf-8",
+)
+
+print("Saved training_summary.json")

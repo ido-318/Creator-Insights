@@ -1,0 +1,17 @@
+{
+  "status": "failed",
+  "error": "Analyst crew: Artifact was not updated: insights.md",
+  "events": [
+    {
+      "time": "2026-10-14T08:45:25.535107+00:00",
+      "status": "analysts_running",
+      "message": "Starting analyst crew."
+    },
+    {
+      "time": "2026-10-14T08:46:17.906544+00:00",
+      "status": "failed",
+      "message": "Analyst crew: Artifact was not updated: insights.md"
+    }
+  ],
+  "id": "3368164c-d8b7-4c35-b60d-2c67785e4276"
+}

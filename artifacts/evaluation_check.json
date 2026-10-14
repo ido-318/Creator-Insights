@@ -1,0 +1,14 @@
+{
+  "metrics_verified": true,
+  "test_rows_checked": 100,
+  "selected_model": "CatBoost depth 4",
+  "recalculated_model_mae": 125.54448220152854,
+  "recalculated_baseline_mae": 120.45,
+  "beats_baseline": false,
+  "limitations": [
+    "Historical data from one Facebook page",
+    "Random split does not evaluate future-period performance",
+    "The test set was inspected during development",
+    "Cross-validation results vary substantially across folds"
+  ]
+}
