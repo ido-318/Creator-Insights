@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Creator Insights — דוח ניתוח</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #202434;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 24px;
+            line-height: 1.7;
+        }
+        section {
+            background: white;
+            padding: 24px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+        h1, h2 { color: #4338ca; }
+        .data-table {
+            border-collapse: collapse;
+            width: 100%;
+            direction: ltr;
+        }
+        .data-table th, .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        .data-table th { background: #eef2ff; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <h1>Creator Insights</h1>
+    <p>דוח ראשוני לניתוח ביצועי פוסטים</p>
+
+    <section>
+        <h2>הנתונים שנבדקו</h2>
+        <p>
+            מספר פוסטים: <strong>499</strong><br>
+            מספר עמודות: <strong>7</strong><br>
+            מקור: UCI Facebook Metrics
+        </p>
+        <p>
+            מדד הביצועים הוא מספר האינטראקציות הכולל,
+            ולא שיעור מעורבות ביחס לחשיפה.
+        </p>
+    </section>
+
+    <section>
+        <h2>השוואת סוגי פוסטים</h2>
+        <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>post_count</th>
+      <th>median_interactions</th>
+      <th>mean_interactions</th>
+    </tr>
+    <tr>
+      <th>post_type</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Video</th>
+      <td>7</td>
+      <td>271.0</td>
+      <td>295.9</td>
+    </tr>
+    <tr>
+      <th>Status</th>
+      <td>45</td>
+      <td>186.0</td>
+      <td>217.0</td>
+    </tr>
+    <tr>
+      <th>Photo</th>
+      <td>425</td>
+      <td>122.0</td>
+      <td>216.8</td>
+    </tr>
+    <tr>
+      <th>Link</th>
+      <td>22</td>
+      <td>52.5</td>
+      <td>89.0</td>
+    </tr>
+  </tbody>
+</table>
+        <img
+            src="interactions_by_type.png"
+            alt="גרף חציון אינטראקציות לפי סוג פוסט וגודל מדגם"
+        >
+        <p>
+            חשוב להשוות גם את מספר הפוסטים בכל קבוצה.
+            תוצאה המבוססת על מעט פוסטים מחייבת זהירות.
+        </p>
+    </section>
+
+    <section>
+        <h2>סטטיסטיקה תיאורית של האינטראקציות</h2>
+        <table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>total_interactions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>499.0</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>212.3</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>380.6</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>71.0</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>124.0</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>229.0</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>6334.0</td>
+    </tr>
+  </tbody>
+</table>
+        <p>
+            count — מספר הפוסטים; mean — ממוצע;
+            std — סטיית תקן; min ו־max — מינימום ומקסימום;
+            50% — חציון; 25% ו־75% — הרבעון הראשון והשלישי.
+        </p>
+    </section>
+
+    <section>
+        <h2>מגבלות הניתוח</h2>
+        <p>
+            זהו מדגם היסטורי מעמוד Facebook יחיד.
+            ההשוואה אינה מנטרלת הבדלים במימון ובתזמון,
+            ואינה מוכיחה שסוג הפוסט גורם להבדל בביצועים.
+        </p>
+    </section>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Local Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local system files
+.DS_Store
+
+# Raw datasets and temporary files
+data/
+*.log
+catboost_info/

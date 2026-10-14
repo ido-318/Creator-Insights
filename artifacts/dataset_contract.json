@@ -1,0 +1,85 @@
+{
+  "contract_version": "1.0",
+  "dataset": "UCI Facebook Metrics",
+  "target": "total_interactions",
+  "features": [
+    "post_type",
+    "category",
+    "post_month",
+    "post_weekday",
+    "post_hour",
+    "paid"
+  ],
+  "allow_extra_columns": false,
+  "min_rows": 100,
+  "columns": {
+    "post_type": {
+      "dtype": "string",
+      "nullable": false,
+      "allowed_values": [
+        "Photo",
+        "Status",
+        "Link",
+        "Video"
+      ]
+    },
+    "category": {
+      "dtype": "integer",
+      "nullable": false,
+      "allowed_values": [
+        1,
+        2,
+        3
+      ]
+    },
+    "post_month": {
+      "dtype": "integer",
+      "nullable": false,
+      "min": 1,
+      "max": 12
+    },
+    "post_weekday": {
+      "dtype": "integer",
+      "nullable": false,
+      "allowed_values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "post_hour": {
+      "dtype": "integer",
+      "nullable": false,
+      "min": 0,
+      "max": 23,
+      "unit": "hour_of_day"
+    },
+    "paid": {
+      "dtype": "integer",
+      "nullable": false,
+      "allowed_values": [
+        0,
+        1
+      ]
+    },
+    "total_interactions": {
+      "dtype": "integer",
+      "nullable": false,
+      "min": 0,
+      "unit": "count"
+    }
+  },
+  "cleaning_policy": {
+    "missing_paid": "Drop row; do not guess paid status",
+    "high_interactions": "Keep; high values alone are not errors"
+  },
+  "limitations": [
+    "Historical data from one Facebook page",
+    "Only seven video posts in the original dataset",
+    "Associations do not prove causation"
+  ]
+}
