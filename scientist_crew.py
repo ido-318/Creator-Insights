@@ -124,7 +124,6 @@ def build_scientist_crew():
         ),
         agent=evaluator,
         context=[inspection_task, training_task],
-        output_file=str(artifacts / "scientist_review.md"),
     )
 
     return Crew(

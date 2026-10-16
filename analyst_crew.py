@@ -134,8 +134,7 @@ def build_analyst_crew():
         ),
         agent=publisher,
         context=[cleaning_task, analysis_task],
-        output_file=str(artifacts / "insights.md"),
-    )
+                )
 
     return Crew(
         agents=[cleaner, analyst, publisher],
