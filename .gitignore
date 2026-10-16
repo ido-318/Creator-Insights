@@ -21,3 +21,8 @@ catboost_info/
 .claude/skills/developing-with-streamlit
 # Accidental nested output directory
 /Users/
+
+# Local credentials and runtime locks
+.streamlit/secrets.toml
+artifacts/*.lock
+supabase/.temp/

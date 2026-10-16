@@ -1,0 +1,44 @@
+filters:
+  and:
+    - file.inFolder("Creator Insights")
+    - 'file.ext == "md"'
+    - 'project == "Creator Insights"'
+properties:
+  file.name:
+    displayName: מסמך
+  note.stage:
+    displayName: שלב
+  note.status:
+    displayName: מצב
+  note.date:
+    displayName: תאריך
+  note.type:
+    displayName: סוג
+views:
+  - type: table
+    name: כל התיעוד
+    order:
+      - file.name
+      - note.stage
+      - note.status
+      - note.date
+      - note.type
+  - type: table
+    name: אבני דרך
+    filters:
+      and:
+        - 'type == "milestone"'
+    order:
+      - file.name
+      - note.date
+      - note.status
+  - type: table
+    name: להשלמה
+    filters:
+      or:
+        - 'status == "pending"'
+        - 'status == "partial"'
+    order:
+      - file.name
+      - note.stage
+      - note.status

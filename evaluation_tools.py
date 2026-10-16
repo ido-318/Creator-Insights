@@ -7,9 +7,9 @@ from crewai.tools import tool
 from sklearn.metrics import mean_absolute_error
 
 
-def review_model_results():
+def review_model_results(artifacts=None, *, write_report=True):
     """Recalculate test metrics and compare them with the saved summary."""
-    artifacts = Path(__file__).resolve().parent / "artifacts"
+    artifacts = Path(artifacts) if artifacts is not None else Path(__file__).resolve().parent / "artifacts"
 
     summary = json.loads(
         (artifacts / "training_summary.json").read_text(
@@ -104,10 +104,11 @@ def review_model_results():
         "limitations": summary["limitations"],
     }
 
-    (artifacts / "evaluation_check.json").write_text(
-        json.dumps(review, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    if write_report:
+        (artifacts / "evaluation_check.json").write_text(
+            json.dumps(review, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
     return review
 
