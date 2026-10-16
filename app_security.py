@@ -41,8 +41,8 @@ def load_access_token(values=None, path=TOKEN_PATH):
             ):
                 raise SecurityError("קובץ קוד הגישה חייב להיות פרטי לבעל הפרויקט (הרשאות 600).")
             token = file.read(258).strip()
-    if not isinstance(token, str) or not re.fullmatch(r"[A-Za-z0-9_-]{32,256}", token):
-        raise SecurityError("נדרש קוד גישה אקראי באורך 32 תווים לפחות. בדקו את הגדרות האבטחה ב־README.")
+    if not isinstance(token, str) or not re.fullmatch(r"[A-Za-z0-9_-]{9,256}", token):
+        raise SecurityError("נדרש קוד גישה באורך 9–256 תווים: אותיות באנגלית, ספרות, מקף או קו תחתון. בדקו את ההגדרות ב־README.")
     return token
 
 

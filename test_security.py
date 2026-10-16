@@ -15,7 +15,7 @@ from dashboard_theme import export_theme, read_config
 from supabase_store import StoreConfig, StoreError, SupabaseStore, build_snapshot, get_config
 from workspace_runtime import WorkspaceBusy, run_ui_flow, workspace_lock
 
-TOKEN = "security-test-token-not-a-secret-123456789"
+TOKEN = "918273645"  # Nine-character fixture, not the configured local access code.
 
 
 class AccessTests(unittest.TestCase):
@@ -60,7 +60,7 @@ class AccessTests(unittest.TestCase):
         self.assertNotIn(AUTH_STATE, app.session_state)
 
     def test_invalid_configuration_fails_closed(self):
-        with patch.dict(os.environ, {'CREATOR_INSIGHTS_ACCESS_TOKEN': 'short'}):
+        with patch.dict(os.environ, {'CREATOR_INSIGHTS_ACCESS_TOKEN': TOKEN[:-1]}):
             with patch('dashboard_data.load_local') as local:
                 app = AppTest.from_file('app.py').run()
                 self.assertFalse(app.exception)
