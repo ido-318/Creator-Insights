@@ -11,6 +11,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from dashboard_data import ARTIFACTS, COLUMNS, ROOT, flow_history, load_local, validate_frame
+from workspace_runtime import workspace_lock
 
 
 class StoreError(RuntimeError):
@@ -31,7 +32,11 @@ def get_config(secrets=None):
     key = key or str(values.get("SUPABASE_SERVICE_ROLE_KEY", os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")))
     if not url and not key:
         return None
-    parts = urlsplit(url)
+    try:
+        parts = urlsplit(url)
+        parts.port  # Validate malformed/out-of-range ports before passing to httpx.
+    except ValueError:
+        raise StoreError("כתובת SUPABASE_URL אינה תקינה.") from None
     if not key or parts.scheme != "https" or not parts.hostname or parts.path or parts.query or parts.fragment or parts.username or parts.password:
         raise StoreError("יש להגדיר כתובת SUPABASE_URL תקינה ב־HTTPS ומפתח שרת ב־SUPABASE_SECRET_KEY.")
     if key.startswith("sb_publishable_"):
@@ -48,14 +53,14 @@ class SupabaseStore:
         if not self.config.key.startswith("sb_secret_"):
             headers["Authorization"] = f"Bearer {self.config.key}"
         try:
-            response = httpx.request(method, f"{self.config.url}/rest/v1/{route}", headers=headers, timeout=30, **kwargs)
+            response = httpx.request(method, f"{self.config.url}/rest/v1/{route}", headers=headers, timeout=30, follow_redirects=False, **kwargs)
             response.raise_for_status()
             return response.json() if response.content else None
         except httpx.HTTPStatusError as exc:
             code = exc.response.status_code
             hint = "בדקו את מפתח השרת והרשאות המסד." if code in (401, 403) else "בדקו שהמיגרציה הותקנה ושהפרויקט פעיל."
             raise StoreError(f"Supabase החזיר שגיאה {code}. {hint}") from None
-        except (httpx.RequestError, ValueError):
+        except (httpx.RequestError, httpx.InvalidURL, ValueError):
             raise StoreError("לא ניתן לקבל תשובה תקינה מ־Supabase. בדקו את החיבור והכתובת.") from None
 
     def check(self):
@@ -70,8 +75,12 @@ class SupabaseStore:
         })
         if not rows:
             raise StoreError("עדיין אין תמונת מצב בענן. סנכרנו תחילה את התוצרים המקומיים.")
-        row = rows[0]
         try:
+            if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict):
+                raise ValueError("invalid snapshot envelope")
+            row = rows[0]
+            if not isinstance(row["training"], dict) or not isinstance(row["reports"], dict):
+                raise ValueError("invalid snapshot fields")
             df = validate_frame(pd.DataFrame(row["posts"]))
             if len(df) != row["row_count"]:
                 raise ValueError("row count mismatch")
@@ -81,6 +90,11 @@ class SupabaseStore:
 
 
 def build_snapshot(artifacts=ARTIFACTS):
+    with workspace_lock(artifacts):
+        return _build_snapshot(artifacts)
+
+
+def _build_snapshot(artifacts):
     """Capture a validated dataset. Training/report files are stored as-is, not rerun."""
     from handoff_integrity import verify_handoff
     from evaluation_tools import review_model_results

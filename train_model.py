@@ -10,8 +10,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from validate_data import validate_data
+from handoff_integrity import verify_handoff
 
 artifacts = Path(__file__).resolve().parent / "artifacts"
+verify_handoff(artifacts)
 
 # Read only the clean dataset and its contract
 df = pd.read_csv(artifacts / "clean_data.csv")

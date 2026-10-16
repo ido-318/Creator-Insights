@@ -15,9 +15,19 @@ from supabase_store import StoreConfig, StoreError, SupabaseStore, build_snapsho
 
 
 class DashboardTests(unittest.TestCase):
+    def setUp(self):
+        environment = patch.dict('os.environ', {
+            'SUPABASE_URL': '', 'SUPABASE_SECRET_KEY': '', 'SUPABASE_SERVICE_ROLE_KEY': '',
+            'CREATOR_INSIGHTS_ACCESS_TOKEN': 'dashboard-test-token-not-a-secret-12345678',
+        })
+        environment.start()
+        self.addCleanup(environment.stop)
+
     def app(self):
-        with patch.dict('os.environ', {'SUPABASE_URL': '', 'SUPABASE_SECRET_KEY': '', 'SUPABASE_SERVICE_ROLE_KEY': ''}):
-            return AppTest.from_file('app.py', default_timeout=30).run()
+        app = AppTest.from_file('app.py', default_timeout=30).run()
+        app.text_input(key='_access_token_input').set_value('dashboard-test-token-not-a-secret-12345678')
+        next(b for b in app.button if b.label == 'כניסה').click().run()
+        return app
 
     def test_initial_overview_uses_real_metrics(self):
         app = self.app()

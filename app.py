@@ -1,18 +1,24 @@
 """Creator Insights — Hebrew analytics workspace, with optional Supabase storage."""
 from datetime import datetime
 import subprocess
-import sys
 
 import altair as alt
 import pandas as pd
 import streamlit as st
-import tomli_w
 
 from dashboard_data import ARTIFACTS, POST_TYPES, REPORTS, filter_posts, flow_history, load_local, summarize
-from dashboard_theme import PALETTES, build_theme, read_config, save_theme
+from dashboard_theme import PALETTES, build_theme, export_theme, read_config, save_theme
 from supabase_store import StoreError, SupabaseStore, build_snapshot, get_config
+from app_security import read_log_tail, redact_secrets, require_local_access
+from workspace_runtime import WorkspaceBusy, run_ui_flow
 
 st.set_page_config(page_title="Creator Insights | סביבת המחקר שלך", page_icon=":material/insights:", layout="wide")
+st.set_option("client.showErrorDetails", "none")
+try:
+    secret_values = dict(st.secrets)
+except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
+    secret_values = {}
+require_local_access(st, secret_values)
 
 # Direction only: visual colors, spacing, typography and widgets use native theming.
 # Keep code, charts and numeric tables in their natural LTR direction.
@@ -72,23 +78,20 @@ with st.sidebar:
                 theme_config = build_theme(config, st.session_state.primary, st.session_state.secondary, st.session_state.dark)
                 save_theme(theme_config)
                 st.success("העיצוב נשמר. אם הממשק עדיין לא השתנה, רעננו את הדף.")
-            except (OSError, ValueError) as exc:
-                st.error(str(exc))
+            except (OSError, ValueError):
+                st.error("לא ניתן לשמור את העיצוב. בדקו את הצבעים והרשאות הקובץ.")
         try:
             theme_config = build_theme(config, st.session_state.primary, st.session_state.secondary, st.session_state.dark)
-            st.download_button("הורדת ערכת העיצוב", tomli_w.dumps(theme_config), "config.toml", "text/plain", icon=":material/download:")
+            st.download_button("הורדת ערכת העיצוב", export_theme(theme_config), "config.toml", "text/plain", icon=":material/download:")
         except ValueError:
             st.caption("בחרו צבע ראשי כהה יותר כדי לשמור ערכה נגישה.")
     st.space("small")
     st.caption("מחקר תוכן · Facebook Metrics\n\nפרויקט לימודי / עמוד מקור יחיד")
+    st.button("יציאה", icon=":material/logout:", on_click=st.session_state.clear)
 
 primary, secondary = st.session_state.primary, st.session_state.secondary
 store = None
 store_error = None
-try:
-    secret_values = dict(st.secrets)
-except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
-    secret_values = {}
 try:
     settings = get_config(secret_values)
     store = SupabaseStore(settings) if settings else None
@@ -122,7 +125,7 @@ try:
         frame, training, reports = cached_local(signature)
         updated = datetime.fromtimestamp((ARTIFACTS / "clean_data.csv").stat().st_mtime).isoformat()
 except (OSError, ValueError, KeyError, StoreError) as exc:
-    load_error = str(exc)
+    load_error = redact_secrets(exc, secret_values)
 
 with st.container(horizontal=True, horizontal_alignment="right"):
     st.badge("תמונת מצב מהענן" if source == "Supabase" else "תוצרים מקומיים", icon=":material/cloud:" if source == "Supabase" else ":material/folder:", color="blue")
@@ -265,13 +268,13 @@ elif page == "מערכת":
             try:
                 with st.status("התהליך פועל — ניתוח, אימות ומידול…", expanded=True) as status:
                     st.write("ניתן לעיין ביומן ההרצה בסיום. מגבלת זמן: 30 דקות.")
-                    with (ARTIFACTS / "latest_ui_run.log").open("w", encoding="utf-8") as log:
-                        process = subprocess.run([sys.executable, "-u", str(ARTIFACTS.parent / "project_flow.py")], cwd=ARTIFACTS.parent, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, timeout=1800)
-                    success = process.returncode == 0
+                    success = run_ui_flow(secret_values=secret_values) == 0
                     status.update(label="התהליך הושלם" if success else "התהליך לא הושלם", state="complete" if success else "error")
                 st.session_state.flow_result = "התהליך הושלם והתוצרים עודכנו." if success else "התהליך נכשל. ייתכן שחלק מהתוצרים ישנים. בדקו את יומן ההרצה."
             except subprocess.TimeoutExpired:
                 st.session_state.flow_result = "ההרצה נעצרה לאחר 30 דקות. ייתכן שחלק מהתוצרים עודכנו."
+            except WorkspaceBusy as exc:
+                st.session_state.flow_result = str(exc)
             except OSError:
                 st.session_state.flow_result = "לא ניתן להפעיל את התהליך. בדקו הרשאות וסביבת Python."
             cached_local.clear()
@@ -281,7 +284,7 @@ elif page == "מערכת":
         log_path = ARTIFACTS / "latest_ui_run.log"
         if log_path.exists():
             with st.expander("יומן ההרצה המקומית האחרונה"):
-                st.code(log_path.read_text(encoding="utf-8", errors="replace")[-16000:], language="text")
+                st.code(read_log_tail(log_path, values=secret_values), language="text")
     with left.container(border=True):
         st.subheader("Supabase", icon=":material/cloud:", text_alignment="right")
         st.badge("מוגדר · טרם נבדק" if store else "מצב מקומי", color="blue" if store else "gray")
@@ -302,8 +305,8 @@ elif page == "מערכת":
                         store.sync(snapshot)
                     st.session_state.pop("cloud_snapshot", None)
                     st.success(f"נשמרו {snapshot['row_count']} פוסטים, תוצאות המודל והדוחות.")
-                except (StoreError, OSError, ValueError) as exc:
-                    st.error(str(exc))
+                except (StoreError, OSError, ValueError, WorkspaceBusy) as exc:
+                    st.error(redact_secrets(exc, secret_values))
         else:
             st.info("להפעלת הענן: צרו פרויקט Supabase, הפעילו את המיגרציה והגדירו את פרטי החיבור בקובץ ‎.env.")
             st.code("SUPABASE_URL=https://PROJECT.supabase.co\nSUPABASE_SECRET_KEY=your_server_secret_key", language="bash")
@@ -315,9 +318,10 @@ elif page == "מערכת":
             events = run.get("events", [])
             when = events[-1].get("time", "")[:16].replace("T", " · ") if events else ""
             with st.expander(f"{labels.get(run.get('status'), run.get('status', 'לא ידוע'))}  ·  {when}  ·  {run.get('id', '')[:8]}"):
-                st.dataframe(pd.DataFrame(events), hide_index=True, alt="אירועים מתועדים של הרצת התהליך")
+                safe_events = [{k: redact_secrets(v, secret_values) for k, v in event.items()} for event in events]
+                st.dataframe(pd.DataFrame(safe_events), hide_index=True, alt="אירועים מתועדים של הרצת התהליך")
                 if run.get("error"):
-                    st.error(run["error"])
+                    st.error(redact_secrets(run["error"], secret_values))
     else:
         st.caption("עדיין אין ריצות מתועדות.")
 

@@ -8,6 +8,8 @@ from analyst_crew import build_analyst_crew
 from scientist_crew import build_scientist_crew
 from modeling_tools import inspect_modeling_input
 from evaluation_tools import review_model_results
+from app_security import redact_secrets
+from workspace_runtime import WorkspaceBusy, workspace_lock
 
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -68,6 +70,7 @@ def run_checked_crew(factory, report_name, filenames):
 class CreatorInsightsFlow(Flow[ProjectState]):
 
     def record(self, status, message):
+        message = redact_secrets(message)
         self.state.status = status
         self.state.events.append({
             "time": datetime.now(timezone.utc).isoformat(),
@@ -86,7 +89,7 @@ class CreatorInsightsFlow(Flow[ProjectState]):
         print(f"\n[{status}] {message}")
 
     def fail(self, stage, error):
-        self.state.error = f"{stage}: {error}"
+        self.state.error = redact_secrets(f"{stage}: {error}")
         self.record("failed", self.state.error)
         return False
 
@@ -188,9 +191,20 @@ class CreatorInsightsFlow(Flow[ProjectState]):
         }
 
 
+def run_project():
+    """The supported UI/CLI entry point serializes the entire paid workflow."""
+    with workspace_lock(ARTIFACTS):
+        flow = CreatorInsightsFlow()
+        result = flow.kickoff()
+        return flow, result
+
+
 if __name__ == "__main__":
-    flow = CreatorInsightsFlow()
-    result = flow.kickoff()
+    try:
+        flow, result = run_project()
+    except WorkspaceBusy as error:
+        print(str(error))
+        raise SystemExit(2)
 
     print("\nFlow result:")
     print(result)

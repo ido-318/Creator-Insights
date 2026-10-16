@@ -24,5 +24,6 @@ catboost_info/
 
 # Local credentials and runtime locks
 .streamlit/secrets.toml
+.streamlit/access_token
 artifacts/*.lock
 supabase/.temp/

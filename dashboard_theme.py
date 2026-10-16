@@ -53,6 +53,11 @@ def build_theme(config, primary, secondary, dark=False):
     return result
 
 
+def export_theme(config):
+    """A theme download must never export server/auth/connection configuration."""
+    return tomli_w.dumps({"theme": config["theme"]})
+
+
 def save_theme(config, path=CONFIG_PATH):
     """Atomic replacement; never change global process configuration or secrets."""
     path.parent.mkdir(parents=True, exist_ok=True)

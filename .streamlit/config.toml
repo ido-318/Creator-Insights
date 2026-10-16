@@ -1,12 +1,17 @@
 [server]
 address = "127.0.0.1"
 headless = true
+enableCORS = true
+enableXsrfProtection = true
+enableStaticServing = false
+allowedHosts = ["localhost", "127.0.0.1", "::1"]
 
 [browser]
 gatherUsageStats = false
 
 [client]
 toolbarMode = "minimal"
+showErrorDetails = "none"
 
 [theme]
 base = "light"
