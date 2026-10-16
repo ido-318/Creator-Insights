@@ -57,9 +57,9 @@ with st.sidebar:
     source = st.selectbox("מקור נתונים", ["תוצרים מקומיים", "Supabase"], key="source", label_visibility="collapsed")
     if page in ("סקירה", "חקר נתונים"):
         st.markdown("#### מסננים")
-        st.multiselect("סוגי תוכן", list(POST_TYPES), format_func=POST_TYPES.get, key="types")
-        st.slider("חודשי פרסום", 1, 12, key="months")
-        st.segmented_control("קידום", ["הכל", "אורגני", "ממומן"], required=True, key="paid")
+        st.multiselect("סוגי תוכן", list(POST_TYPES), format_func=POST_TYPES.get, key="types", persist_state="session")
+        st.slider("חודשי פרסום", 1, 12, key="months", persist_state="session")
+        st.segmented_control("קידום", ["הכל", "אורגני", "ממומן"], required=True, key="paid", persist_state="session")
         st.button("איפוס מסננים", icon=":material/restart_alt:", on_click=reset_filters, width="stretch")
     with st.expander("עיצוב וצבעים", icon=":material/palette:"):
         st.selectbox("ערכת צבעים", list(PALETTES), key="palette", on_change=choose_palette)
@@ -165,15 +165,19 @@ if page in ("סקירה", "חקר נתונים"):
         st.button("הצגת כל הפוסטים", on_click=reset_filters, type="primary")
         st.stop()
     with st.container(horizontal=True):
-        st.metric("פוסטים בניתוח", f"{len(filtered):,}", border=True, width=200)
-        st.metric("סך אינטראקציות", f"{filtered.total_interactions.sum():,}", border=True, width=200)
-        st.metric("חציון לפוסט", f"{filtered.total_interactions.median():,.1f}", border=True, width=200)
-        st.metric("שיעור תוכן ממומן", f"{filtered.paid.mean():.0%}", border=True, width=200)
+        with st.container(width=440):
+            first, second = st.columns(2)
+            first.metric("פוסטים בניתוח", f"{len(filtered):,}", border=True)
+            second.metric("סך אינטראקציות", f"{filtered.total_interactions.sum():,}", border=True)
+        with st.container(width=440):
+            third, fourth = st.columns(2)
+            third.metric("חציון לפוסט", f"{filtered.total_interactions.median():,.1f}", border=True)
+            fourth.metric("שיעור תוכן ממומן", f"{filtered.paid.mean():.0%}", border=True)
 
     if page == "סקירה":
         charts = st.container(horizontal=True, gap="medium")
         with charts.container(border=True, width=440):
-            st.subheader("איזה תוכן מעורר יותר תגובות?", text_alignment="right")
+            st.subheader("איזה תוכן מוביל באינטראקציות?", text_alignment="right")
             st.caption("השוואת חציון אינטראקציות לכל פוסט")
             type_chart(filtered)
         with charts.container(border=True, width=440):
