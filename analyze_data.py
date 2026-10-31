@@ -1,5 +1,9 @@
 from pathlib import Path
 
+import matplotlib
+
+# This script writes files and runs in a CrewAI subprocess without a desktop.
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
