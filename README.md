@@ -145,6 +145,7 @@ python test_contract.py
 python test_handoff_integrity.py
 python test_flow_failure.py
 python -m unittest test_dashboard -v
+python -m unittest test_evaluation -v
 python -m unittest test_security -v
 ```
 
@@ -156,6 +157,7 @@ python -m unittest test_security -v
 - חוזה פגום, שינוי יחידות מוצהרות וגרסה לא נתמכת.
 - שינוי בקבצי המסירה לאחר פרסומם.
 - חסימת צוות המידול כאשר בדיקת המעבר נכשלת.
+- חסימת תוצאות אמת או תחזיות ששונו, מזהי בדיקה חסרים או כפולים, חלוקה פגומה ומדדי בסיס או טענת שיפור שאינם תואמים לחישוב מחדש.
 
 בדיקת ה־Flow מדמה את הצוותים, אך מפעילה את בדיקת
 המעבר האמיתית על עותקים זמניים.
