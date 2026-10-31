@@ -27,3 +27,6 @@ catboost_info/
 .streamlit/access_token
 artifacts/*.lock
 supabase/.temp/
+.runtime/
+crewai:*.lock
+sqlite:*.lock
