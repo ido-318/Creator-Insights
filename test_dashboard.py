@@ -67,6 +67,25 @@ class DashboardTests(unittest.TestCase):
         expected = df[(df.post_type == 'Photo') & df.post_month.between(4, 8) & (df.paid == 1)]
         self.assertEqual(actual.to_dict('records'), expected.to_dict('records'))
 
+    def test_model_page_exposes_baseline_result_and_limitations(self):
+        app = self.app()
+        app.radio(key='page').set_value('מעבדת מודלים').run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any('לא עבר את קו הבסיס' in item.value for item in app.warning))
+        limitations = ' '.join(item.value for item in app.info)
+        self.assertIn('סט הבדיקה נצפה במהלך הפיתוח', limitations)
+        self.assertIn('אינה בודקת חיזוי עתידי', limitations)
+        self.assertEqual(app.metric[0].value, '120.45')
+        self.assertEqual(app.metric[1].value, '125.54')
+
+    def test_system_page_keeps_cloud_optional_and_flow_available(self):
+        app = self.app()
+        app.radio(key='page').set_value('מערכת').run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any('הרחבה אופציונלית' in item.value for item in app.subheader))
+        run_button = next(b for b in app.button if b.label == 'הפעלת התהליך המלא')
+        self.assertFalse(run_button.disabled)
+
     def test_palette_updates_session_without_mutating_config(self):
         before = read_config()
         app = self.app()
