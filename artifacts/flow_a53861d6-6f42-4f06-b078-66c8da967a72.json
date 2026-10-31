@@ -1,0 +1,37 @@
+{
+  "status": "completed",
+  "error": "",
+  "events": [
+    {
+      "time": "2026-10-31T18:08:22.396422+00:00",
+      "status": "analysts_running",
+      "message": "Starting analyst crew."
+    },
+    {
+      "time": "2026-10-31T18:09:19.228589+00:00",
+      "status": "analysts_done",
+      "message": "Analyst artifacts and handoff manifest updated."
+    },
+    {
+      "time": "2026-10-31T18:09:19.229906+00:00",
+      "status": "validating",
+      "message": "Checking handoff integrity, contract and data."
+    },
+    {
+      "time": "2026-10-31T18:09:19.233537+00:00",
+      "status": "handoff_passed",
+      "message": "Validated 499 rows against the contract and verified handoff fingerprints."
+    },
+    {
+      "time": "2026-10-31T18:09:19.234691+00:00",
+      "status": "scientists_running",
+      "message": "Starting modeling crew."
+    },
+    {
+      "time": "2026-10-31T18:10:49.539640+00:00",
+      "status": "completed",
+      "message": "Artifacts updated and evaluation metrics verified."
+    }
+  ],
+  "id": "a53861d6-6f42-4f06-b078-66c8da967a72"
+}
