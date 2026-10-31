@@ -222,6 +222,7 @@ elif page == "מעבדת מודלים":
         st.info("תוצאות האימון עדיין לא זמינות. הפעילו את תהליך המידול ממסך מערכת.")
         st.stop()
     st.caption("תוצאות האימון המלא · מסנני התוכן אינם משנים את ניסוי המודל")
+    st.info("זהו ניסוי לימודי בנתונים היסטוריים מדף Facebook אחד. החלוקה האקראית אינה בודקת חיזוי עתידי, וסט הבדיקה נצפה במהלך הפיתוח. התוצאות אינן הבטחה לדיוק בחשבונות אחרים.")
     try:
         result = training["test_results"]
         baseline, selected = float(result["baseline_mae"]), float(result["selected_model_mae"])
@@ -286,7 +287,8 @@ elif page == "מערכת":
             with st.expander("יומן ההרצה המקומית האחרונה"):
                 st.code(read_log_tail(log_path, values=secret_values), language="text")
     with left.container(border=True):
-        st.subheader("Supabase", icon=":material/cloud:", text_alignment="right")
+        st.subheader("Supabase · הרחבה אופציונלית", icon=":material/cloud:", text_alignment="right")
+        st.caption("אינו נדרש להגשת הפרויקט. שני הצוותים והדשבורד פועלים גם במצב מקומי.")
         st.badge("מוגדר · טרם נבדק" if store else "מצב מקומי", color="blue" if store else "gray")
         st.caption("שמירת תמונות מצב של הנתונים, תוצאות המודלים והדוחות. כל תמונת מצב נשמרת בעסקה אחת; סנכרון חוזר של אותו תוכן אינו יוצר כפילות.")
         if store_error:
