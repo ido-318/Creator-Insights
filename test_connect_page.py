@@ -1,9 +1,13 @@
 """Connect-account page: setup, connected, and OAuth return states."""
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
 from streamlit.testing.v1 import AppTest
+
+import user_store
 
 ENV = {"CREATOR_INSIGHTS_PUBLIC_DEMO": "1", "SUPABASE_URL": "", "SUPABASE_SECRET_KEY": "", "SUPABASE_SERVICE_ROLE_KEY": "",
        "INSTAGRAM_APP_ID": "", "INSTAGRAM_APP_SECRET": "", "TIKTOK_CLIENT_KEY": "", "TIKTOK_CLIENT_SECRET": "", "OAUTH_REDIRECT_URI": ""}
@@ -52,6 +56,23 @@ class ConnectPageTests(unittest.TestCase):
         self.assertFalse(app.exception)
         self.assertTrue(any("פג תוקף" in e.value for e in app.error))
         self.assertNotIn("social", app.session_state)
+
+    def test_saved_data_is_private_and_deletable(self):
+        with tempfile.TemporaryDirectory() as folder:
+            key, path = user_store.generate_key(), str(Path(folder) / "db.sqlite")
+            store = user_store.UserStore.from_config({user_store.KEY_NAME: key, user_store.PATH_NAME: path})
+            mine, other = store.user_key("instagram", "me"), store.user_key("instagram", "someone-else")
+            store.save_snapshot(mine, "instagram", "@me", videos())
+            store.save_snapshot(other, "instagram", "@other", videos())
+            env = {user_store.KEY_NAME: key, user_store.PATH_NAME: path}
+            app = self.run_app(env, before=lambda a: a.session_state.__setitem__("social", {"platform": "instagram", "token": "t", "name": "@me", "videos": videos(), "user_key": mine}))
+            self.assertFalse(app.exception)
+            self.assertTrue(any("מוצפנים" in c.value for c in app.caption))
+            with patch.dict("os.environ", {**ENV, **env}):
+                next(b for b in app.button if b.key == "delete_my_data").click().run()
+            self.assertFalse(app.exception)
+            self.assertEqual(store.snapshots(mine), [])
+            self.assertEqual(len(store.snapshots(other)), 1)
 
 
 if __name__ == "__main__":

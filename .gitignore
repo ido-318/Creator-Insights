@@ -30,3 +30,6 @@ supabase/.temp/
 .runtime/
 crewai:*.lock
 sqlite:*.lock
+
+# Encrypted per-user storage
+creator_insights.db*

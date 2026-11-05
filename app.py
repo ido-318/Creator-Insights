@@ -1,5 +1,6 @@
 """Creator Insights — analytics workspace for content creators (Hebrew RTL / English LTR)."""
 from datetime import datetime
+import sqlite3
 import subprocess
 import urllib.parse
 
@@ -14,6 +15,7 @@ from app_security import public_demo, read_log_tail, redact_secrets, require_loc
 from workspace_runtime import WorkspaceBusy, run_ui_flow
 from social_connect import PLATFORMS, SOCIAL_KEYS, SocialError, analyze_video, auth_url, consume_state, exchange_code, fetch_videos, interactions, is_pending, new_state
 from social_connect import get_config as social_config
+from user_store import KEY_NAME as STORE_KEY, PATH_NAME as STORE_PATH, StorageError, UserStore
 
 st.set_page_config(page_title="Creator Insights", page_icon=":material/insights:", layout="wide")
 st.set_option("client.showErrorDetails", "none")
@@ -23,6 +25,7 @@ except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
     secret_values = {}
 # OAuth app credentials stay server-side; only these keys are read, and never rendered.
 social_values = {k: secret_values[k] for k in SOCIAL_KEYS if k in secret_values}
+storage_values = {k: secret_values[k] for k in (STORE_KEY, STORE_PATH) if k in secret_values}
 DEMO = public_demo(secret_values)
 if DEMO:
     # Public demo exposes saved artifacts only: never pass credentials to the page.
@@ -150,6 +153,14 @@ def cached_local(signature):
     return load_local()
 
 
+def open_store():
+    """Encrypted per-user storage, or None when it isn't switched on."""
+    try:
+        return UserStore.from_config(storage_values)
+    except StorageError:
+        return None
+
+
 # OAuth return: the platform redirects back here with ?code=...&state=...
 _query = st.query_params
 if "state" in _query and ("code" in _query or "error" in _query):
@@ -167,8 +178,15 @@ if "state" in _query and ("code" in _query or "error" in _query):
             with st.spinner(T("מתחברים…", "Connecting…")):
                 _config = social_config(_platform, social_values)
                 _token = exchange_code(_platform, _config, _code)
-                _name, _videos = fetch_videos(_platform, _token)
-            st.session_state.social = {"platform": _platform, "token": _token, "name": _name, "videos": _videos}
+                _name, _videos, _account = fetch_videos(_platform, _token)
+            _user_key, _store = None, open_store()
+            if _store and _account:
+                try:
+                    _user_key = _store.user_key(_platform, _account)
+                    _store.save_snapshot(_user_key, _platform, _name, _videos)
+                except (StorageError, OSError, sqlite3.Error):
+                    _user_key = None
+            st.session_state.social = {"platform": _platform, "token": _token, "name": _name, "videos": _videos, "user_key": _user_key}
         except (SocialError, AttributeError) as exc:
             st.session_state.social_error = redact_secrets(exc, social_values)
 
@@ -412,6 +430,22 @@ def render_connect():
                 st.session_state.pop("social", None)
                 st.session_state.pop("social_error", None)
                 st.rerun()
+        user_store = open_store() if social.get("user_key") else None
+        if user_store:
+            with st.container(border=True):
+                st.caption(T("הנתונים שלך נשמרים מוצפנים ומופרדים לחלוטין משאר המשתמשים. אף אחד אחר לא יכול לראות אותם.", "Your data is stored encrypted and kept completely separate from other users. Nobody else can see it."))
+                try:
+                    history = user_store.snapshots(social["user_key"], limit=5)
+                except (StorageError, OSError, sqlite3.Error):
+                    history = []
+                if history:
+                    rows = [{T("תאריך", "Saved"): h["taken_at"][:16].replace("T", " "), T("סרטונים", "Videos"): len(h["videos"]),
+                             T("אינטראקציות", "Interactions"): int(sum((v.get("likes") or 0) + (v.get("comments") or 0) + (v.get("shares") or 0) for v in h["videos"]))} for h in history]
+                    st.dataframe(pd.DataFrame(rows), hide_index=True, alt=T("שמירות קודמות של החשבון שלך", "Earlier saves of your account"))
+                if st.button(T("מחיקת הנתונים שלי", "Delete my data"), icon=":material/delete:", key="delete_my_data"):
+                    user_store.delete_user(social["user_key"])
+                    social["user_key"] = None
+                    st.success(T("הנתונים שלך נמחקו.", "Your data was deleted."))
         if videos.empty:
             st.info(T("לא נמצאו סרטונים בחשבון. פרסמו סרטון ונסו שוב.", "No videos were found on this account. Post a video and try again."))
             return
