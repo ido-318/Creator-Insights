@@ -111,10 +111,13 @@ button[kind="secondary"]:hover, [data-testid="stDownloadButton"] button:hover {{
 .ci-wave {{height:64px;margin:1rem -1.6rem 0;background:repeating-linear-gradient(90deg,rgba(25,195,179,.65) 0 3px,transparent 3px 9px);-webkit-mask-image:linear-gradient(to top,#000,transparent);mask-image:linear-gradient(to top,#000,transparent);opacity:.7}}
 [data-testid="stMetric"] {{padding:.6rem .4rem}}
 [data-testid="stMetricValue"] {{font-weight:800}}
-[data-testid="stSidebar"] [data-baseweb="radio"] > div:first-child {{display:none}}
-[data-testid="stSidebar"] [role="radiogroup"] label {{padding:.55rem .85rem;border-radius:12px;margin-bottom:.15rem;transition:background .15s}}
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{background:rgba(25,195,179,.16);box-shadow:inset 0 0 0 1px rgba(25,195,179,.4)}}
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p {{color:#5EEAD4;font-weight:700}}
+[data-testid="stSidebar"] [data-baseweb="radio"] > div:first-child, [data-testid="stSidebar"] label[data-testid="stRadioOption"] > div > div:first-child {{display:none!important}}
+[data-testid="stSidebar"] [role="radiogroup"] {{gap:.4rem}}
+[data-testid="stSidebar"] [role="radiogroup"] label {{padding:.7rem 1rem;border-radius:14px;border:1px solid rgba(128,128,128,.22);background:rgba(255,255,255,.02);transition:background .15s,border-color .15s,transform .15s,box-shadow .15s;cursor:pointer}}
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {{border-color:rgba(25,195,179,.6);background:rgba(25,195,179,.08);transform:translateX({'4px' if not RTL else '-4px'})}}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{background:linear-gradient(135deg,#2EE6D3,#19C3B3 60%,#12A4C4);border-color:transparent;box-shadow:0 10px 24px -10px rgba(25,195,179,.8)}}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) * {{color:#031A18!important;font-weight:700}}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:focus-visible) {{outline:3px solid #5EEAD4;outline-offset:2px}}
 @media (max-width: 640px) {{.st-key-hero h1 {{font-size:2.1rem!important}} .st-key-qc_panel {{padding:1rem 1rem 0!important}} .ci-wave {{margin:1rem -1rem 0}}}}
 @media (max-width: 640px) {{.block-container {{padding:1.2rem .9rem}} h1 {{font-size:1.9rem!important}}
 [data-testid="stHorizontalBlock"] {{flex-wrap:wrap!important;gap:.6rem!important}}
