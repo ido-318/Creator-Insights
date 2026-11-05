@@ -479,15 +479,19 @@ elif page == "חיבור חשבון":
                 st.link_button(T(f"התחברות עם {names[platform]}", f"Continue with {names[platform]}"), auth_url(platform, config, st.session_state[state_key]), type="primary", icon=":material/login:", width="stretch")
         elif not config_error:
             with st.container(border=True, key="connect_panel"):
-                st.subheader(T(f"{names[platform]} עדיין לא מחובר לאפליקציה", f"{names[platform]} isn't set up yet"), icon=":material/link:", text_alignment="center")
-                st.caption(T("כדי לאפשר חיבור צריך ליצור אפליקציית מפתחים בפלטפורמה ולהגדיר את הפרטים בשרת.", "To allow sign-in, create a developer app on the platform and add its details on the server."))
-            steps = {
-                "instagram": T("1. ב-developers.facebook.com צרו אפליקציה והוסיפו Instagram API with Instagram Login.\n2. הוסיפו את כתובת האפליקציה כ-Redirect URI.\n3. שמרו ב-Secrets את `INSTAGRAM_APP_ID` ו-`INSTAGRAM_APP_SECRET`.\n4. שמרו גם `OAUTH_REDIRECT_URI` עם כתובת האפליקציה. החשבון צריך להיות עסקי או יוצר.", "1. At developers.facebook.com create an app and add Instagram API with Instagram Login.\n2. Add this app's address as a Redirect URI.\n3. Save `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` in Secrets.\n4. Also save `OAUTH_REDIRECT_URI` with this app's address. The account must be a Business or Creator account."),
-                "tiktok": T("1. ב-developers.tiktok.com צרו אפליקציה והפעילו Login Kit ואת ההרשאות user.info.basic ו-video.list.\n2. הוסיפו את כתובת האפליקציה כ-Redirect URI.\n3. שמרו ב-Secrets את `TIKTOK_CLIENT_KEY` ו-`TIKTOK_CLIENT_SECRET`.\n4. שמרו גם `OAUTH_REDIRECT_URI` עם כתובת האפליקציה. TikTok צריכה לאשר את האפליקציה לפני שחשבונות אחרים יוכלו להתחבר.", "1. At developers.tiktok.com create an app and enable Login Kit with the user.info.basic and video.list scopes.\n2. Add this app's address as a Redirect URI.\n3. Save `TIKTOK_CLIENT_KEY` and `TIKTOK_CLIENT_SECRET` in Secrets.\n4. Also save `OAUTH_REDIRECT_URI` with this app's address. TikTok must approve the app before other accounts can sign in."),
-            }
-            with st.expander(T("הוראות הגדרה", "Setup steps"), expanded=True, icon=":material/checklist:"):
-                st.markdown(steps[platform])
-                st.caption(T("הסודות נשארים בשרת ואינם מוצגים בדפדפן.", "The secrets stay on the server and are never shown in the browser."))
+                st.subheader(T(f"חיבור {names[platform]} יהיה זמין בקרוב", f"{names[platform]} sign-in is coming soon"), icon=":material/schedule:", text_alignment="center")
+                st.caption(T("החיבור עדיין לא הופעל באפליקציה הזאת. בינתיים אפשר לנסות את הבדיקה המהירה בדף הבית.", "Sign-in isn't switched on in this app yet. Meanwhile, try the quick check on the Home page."))
+                st.button(T(f"התחברות עם {names[platform]}", f"Continue with {names[platform]}"), disabled=True, width="stretch", key="connect_disabled")
+            if not DEMO:
+                # Owner-only: visitors never see developer setup; they just click the sign-in button once it's on.
+                steps = {
+                    "instagram": T("1. ב-developers.facebook.com צרו אפליקציה והוסיפו Instagram API with Instagram Login.\n2. הוסיפו את כתובת האפליקציה כ-Redirect URI.\n3. שמרו ב-Secrets את `INSTAGRAM_APP_ID` ו-`INSTAGRAM_APP_SECRET`.\n4. שמרו גם `OAUTH_REDIRECT_URI` עם כתובת האפליקציה. החשבון צריך להיות עסקי או יוצר.", "1. At developers.facebook.com create an app and add Instagram API with Instagram Login.\n2. Add this app's address as a Redirect URI.\n3. Save `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` in Secrets.\n4. Also save `OAUTH_REDIRECT_URI` with this app's address. The account must be a Business or Creator account."),
+                    "tiktok": T("1. ב-developers.tiktok.com צרו אפליקציה והפעילו Login Kit ואת ההרשאות user.info.basic ו-video.list.\n2. הוסיפו את כתובת האפליקציה כ-Redirect URI.\n3. שמרו ב-Secrets את `TIKTOK_CLIENT_KEY` ו-`TIKTOK_CLIENT_SECRET`.\n4. שמרו גם `OAUTH_REDIRECT_URI` עם כתובת האפליקציה. TikTok צריכה לאשר את האפליקציה לפני שחשבונות אחרים יוכלו להתחבר.", "1. At developers.tiktok.com create an app and enable Login Kit with the user.info.basic and video.list scopes.\n2. Add this app's address as a Redirect URI.\n3. Save `TIKTOK_CLIENT_KEY` and `TIKTOK_CLIENT_SECRET` in Secrets.\n4. Also save `OAUTH_REDIRECT_URI` with this app's address. TikTok must approve the app before other accounts can sign in."),
+                }
+                with st.expander(T("למנהל המערכת: הפעלת החיבור", "For the owner: switch sign-in on"), expanded=False, icon=":material/checklist:"):
+                    st.markdown(steps[platform])
+                    st.caption(T("הסודות נשארים בשרת ואינם מוצגים בדפדפן.", "The secrets stay on the server and are never shown in the browser."))
+
 
 elif page == "מערכת":
     left, right = st.columns(2, gap="medium")

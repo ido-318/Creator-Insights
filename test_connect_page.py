@@ -23,11 +23,14 @@ class ConnectPageTests(unittest.TestCase):
             app.session_state.page = "חיבור חשבון"
             return app.run()
 
-    def test_not_configured_explains_setup_without_error(self):
+    def test_not_configured_is_friendly_and_hides_developer_setup(self):
         app = self.run_app()
         self.assertFalse(app.exception)
-        self.assertTrue(any("עדיין לא מחובר" in s.value for s in app.subheader))
+        self.assertTrue(any("יהיה זמין בקרוב" in s.value for s in app.subheader))
         self.assertEqual(len(app.metric), 0)
+        # Visitors never see developer setup or secret names.
+        self.assertNotIn("INSTAGRAM_APP_SECRET", str(app))
+        self.assertNotIn("developers.facebook.com", str(app))
 
     def test_configured_shows_sign_in_button(self):
         app = self.run_app({"INSTAGRAM_APP_ID": "id", "INSTAGRAM_APP_SECRET": "secret-value-123", "OAUTH_REDIRECT_URI": "https://app.example.com/"})
