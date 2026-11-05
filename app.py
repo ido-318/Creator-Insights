@@ -12,6 +12,8 @@ from dashboard_theme import PALETTES, build_theme, export_theme, read_config, sa
 from supabase_store import StoreError, SupabaseStore, build_snapshot, get_config
 from app_security import public_demo, read_log_tail, redact_secrets, require_local_access
 from workspace_runtime import WorkspaceBusy, run_ui_flow
+from social_connect import PLATFORMS, SOCIAL_KEYS, SocialError, analyze_video, auth_url, consume_state, exchange_code, fetch_videos, interactions, is_pending, new_state
+from social_connect import get_config as social_config
 
 st.set_page_config(page_title="Creator Insights", page_icon=":material/insights:", layout="wide")
 st.set_option("client.showErrorDetails", "none")
@@ -19,6 +21,8 @@ try:
     secret_values = dict(st.secrets)
 except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
     secret_values = {}
+# OAuth app credentials stay server-side; only these keys are read, and never rendered.
+social_values = {k: secret_values[k] for k in SOCIAL_KEYS if k in secret_values}
 DEMO = public_demo(secret_values)
 if DEMO:
     # Public demo exposes saved artifacts only: never pass credentials to the page.
@@ -38,6 +42,7 @@ def T(he, en):
 TYPE_EN = {"Photo": "Photo", "Status": "Status", "Link": "Link", "Video": "Video"}
 PAGE_LABELS = {
     "סקירה": (":material/home:", "בית", "Home"),
+    "חיבור חשבון": (":material/link:", "חיבור חשבון", "Connect account"),
     "חקר נתונים": (":material/bar_chart:", "גרפים ונתונים", "Charts & data"),
     "מעבדת מודלים": (":material/insights:", "תחזיות", "Forecasts"),
     "דוחות": (":material/article:", "דוחות", "Reports"),
@@ -102,8 +107,8 @@ button[kind="secondary"], button[kind="secondaryFormSubmit"], [data-testid="stDo
 button[kind="secondary"]:hover, [data-testid="stDownloadButton"] button:hover {{border-color:#19C3B3!important;background:rgba(25,195,179,.1)!important}}
 [data-baseweb="select"] > div {{border-radius:999px!important}}
 [data-baseweb="select"] > div:hover {{border-color:#19C3B3!important}}
-.st-key-qc_panel {{border-radius:28px!important;padding:1.4rem 1.6rem 0!important;overflow:hidden;background:linear-gradient(180deg,rgba(25,195,179,.10),rgba(16,24,33,.9) 55%)!important;box-shadow:0 0 0 1px rgba(25,195,179,.28),0 34px 80px -34px rgba(25,195,179,.5)}}
-.st-key-qc_panel [data-testid="stHeading"], .st-key-qc_panel [data-testid="stCaptionContainer"] {{text-align:center!important}}
+.st-key-qc_panel, .st-key-connect_panel {{border-radius:28px!important;padding:1.4rem 1.6rem 0!important;overflow:hidden;background:linear-gradient(180deg,rgba(25,195,179,.10),rgba(16,24,33,.9) 55%)!important;box-shadow:0 0 0 1px rgba(25,195,179,.28),0 34px 80px -34px rgba(25,195,179,.5)}}
+.st-key-qc_panel [data-testid="stHeading"], .st-key-qc_panel [data-testid="stCaptionContainer"], .st-key-connect_panel [data-testid="stCaptionContainer"] {{text-align:center!important}}
 .st-key-qc_panel [data-testid="stHeading"], .st-key-qc_panel [data-testid="stHeading"] > * {{display:flex;justify-content:center;width:100%}}
 .st-key-qc_panel [data-testid="stFormSubmitButton"], .st-key-qc_panel [data-testid="stFormSubmitButton"] > div {{display:flex;justify-content:center;width:100%}}
 .st-key-qc_panel [data-testid="stElementContainer"]:has([data-testid="stFormSubmitButton"]) {{width:100%!important;display:flex;justify-content:center}}
@@ -146,6 +151,29 @@ def reset_filters():
 @st.cache_data(ttl=300, max_entries=4, show_spinner=False)
 def cached_local(signature):
     return load_local()
+
+
+# OAuth return: the platform redirects back here with ?code=...&state=...
+_query = st.query_params
+if "state" in _query and ("code" in _query or "error" in _query):
+    _code, _state, _denied = _query.get("code"), _query.get("state"), "error" in _query
+    st.query_params.clear()
+    st.session_state.page = "חיבור חשבון"
+    st.session_state.pop("social_error", None)
+    _platform = consume_state(_state)
+    if _denied:
+        st.session_state.social_error = T("החיבור בוטל בפלטפורמה.", "The connection was cancelled on the platform.")
+    elif not _platform or not _code:
+        st.session_state.social_error = T("קישור החיבור פג תוקף או אינו תקין. התחילו שוב.", "The sign-in link expired or isn't valid. Please start again.")
+    else:
+        try:
+            with st.spinner(T("מתחברים…", "Connecting…")):
+                _config = social_config(_platform, social_values)
+                _token = exchange_code(_platform, _config, _code)
+                _name, _videos = fetch_videos(_platform, _token)
+            st.session_state.social = {"platform": _platform, "token": _token, "name": _name, "videos": _videos}
+        except (SocialError, AttributeError) as exc:
+            st.session_state.social_error = redact_secrets(exc, social_values)
 
 
 with st.sidebar:
@@ -200,6 +228,7 @@ except StoreError as exc:
 
 headings = {
     "סקירה": (T("הכול במבט אחד", "Everything at a glance"), T("בדקו רעיון, ותראו איך תוכן דומה הצליח.", "Check an idea and see how similar content did.")),
+    "חיבור חשבון": (T("חיבור חשבון", "Connect your account"), T("בחרו סרטון מ-Instagram או TikTok, והאפליקציה תנתח אותו.", "Pick a video from Instagram or TikTok and the app analyses it.")),
     "חקר נתונים": (T("גרפים ונתונים", "Charts & data"), T("מה עובד, ומתי כדאי לפרסם.", "What works, and when to post.")),
     "מעבדת מודלים": (T("בודקים. משווים. לומדים.", "Test. Compare. Learn."), T("תוצאות הניסוי ומה אפשר ללמוד מהן בזהירות.", "Experiment results and what can be learned from them, carefully.")),
     "דוחות": (T("מהנתונים לתמונה ברורה", "From data to a clear picture"), T("דוחות המחקר, מסקנות האנליסטים והערכת התחזיות.", "Research reports, analyst conclusions and forecast review.")),
@@ -384,6 +413,81 @@ elif page == "דוחות":
             st.markdown(reports[chosen])
     else:
         st.info(T("הדוח הזה עדיין לא נוצר במקור הנתונים שנבחר.", "This report hasn't been created for the selected source yet."))
+
+elif page == "חיבור חשבון":
+    social = st.session_state.get("social")
+    names = {"instagram": "Instagram", "tiktok": "TikTok"}
+    platform = st.segmented_control(T("פלטפורמה", "Platform"), list(PLATFORMS), format_func=names.get, default=(social or {}).get("platform", "instagram"), required=True, key="connect_platform")
+    if st.session_state.get("social_error"):
+        st.error(st.session_state.social_error)
+    if social and social["platform"] == platform:
+        videos = social["videos"]
+        with st.container(horizontal=True, vertical_alignment="center"):
+            st.badge(T("מחובר: ", "Connected: ") + social["name"], icon=":material/check_circle:", color="green")
+            if st.button(T("ניתוק", "Disconnect"), icon=":material/link_off:", key="disconnect"):
+                st.session_state.pop("social", None)
+                st.session_state.pop("social_error", None)
+                st.rerun()
+        if videos.empty:
+            st.info(T("לא נמצאו סרטונים בחשבון. פרסמו סרטון ונסו שוב.", "No videos were found on this account. Post a video and try again."))
+            st.stop()
+        labels = {i: f"{row.created:%Y-%m-%d} · {(row.title or T('ללא כיתוב', 'No caption'))[:48]}" for i, row in videos.iterrows()}
+        pick = st.selectbox(T("בחרו סרטון", "Choose a video"), list(labels), format_func=labels.get, key=f"video_pick_{LANG}")
+        video = videos.loc[pick]
+        result = analyze_video(video, videos, frame)
+        m = st.columns(4, gap="small")
+        m[0].metric(T("אינטראקציות", "Interactions"), f"{result['interactions']:,.0f}", border=True)
+        m[1].metric(T("לייקים", "Likes"), f"{video.likes:,.0f}" if pd.notna(video.likes) else "–", border=True)
+        m[2].metric(T("תגובות", "Comments"), f"{video.comments:,.0f}" if pd.notna(video.comments) else "–", border=True)
+        m[3].metric(T("צפיות", "Views"), f"{video.views:,.0f}" if pd.notna(video.views) else T("לא זמין", "n/a"), border=True)
+        lines = [T(f"מקום {result['rank']} מתוך {result['count']} הסרטונים האחרונים בחשבון.", f"Ranked {result['rank']} of your {result['count']} latest videos.")]
+        if result["vs_account_median"] is not None:
+            lines.append(T("לעומת החציון בחשבון שלך: ", "Versus your account median: ") + f"\u2066{result['vs_account_median']:+.0%}\u2069.")
+        if result["vs_reference_median"] is not None:
+            lines.append(T("לעומת החציון בנתוני המחקר (עמוד Facebook אחד): ", "Versus the study data median (one Facebook page): ") + f"\u2066{result['vs_reference_median']:+.0%}\u2069.")
+        if "best_hour" in result:
+            lines.append(T(f"בסרטונים שלך, השעה החזקה ביותר היא {result['best_hour']:02d}:00 (לפי שעון UTC).", f"Across your videos, your strongest posting hour is {result['best_hour']:02d}:00 (UTC)."))
+        with st.container(border=True):
+            st.subheader(T("מה האפליקציה מצאה", "What the app found"), icon=":material/analytics:", text_alignment="right" if RTL else "left")
+            for line in lines:
+                st.markdown("- " + line)
+            st.caption(T("זה תיאור של מה שקרה, לא תחזית. הנתונים מושווים לנתוני מחקר ישנים מפלטפורמה אחרת, ולכן ההשוואה מוגבלת.", "This describes what happened; it isn't a forecast. The comparison uses older study data from another platform, so it is limited."))
+        chart_data = videos.assign(interactions=videos.apply(interactions, axis=1), label=videos.created.dt.strftime("%m-%d"))
+        chart = alt.Chart(chart_data).mark_bar(color=primary, cornerRadiusEnd=5).encode(
+            x=alt.X("label:N", sort=None, title=T("תאריך פרסום", "Posted")), y=alt.Y("interactions:Q", title=T("אינטראקציות", "Interactions")),
+            tooltip=[alt.Tooltip("title:N", title=T("כיתוב", "Caption")), alt.Tooltip("interactions:Q", title=T("אינטראקציות", "Interactions"), format=",.0f")]).properties(height=240)
+        with st.container(border=True):
+            st.subheader(T("הסרטונים האחרונים שלך", "Your latest videos"), text_alignment="right" if RTL else "left")
+            st.altair_chart(chart_style(chart), alt=T("אינטראקציות לכל אחד מהסרטונים האחרונים", "Interactions for each of your latest videos"))
+        if pd.notna(video.url) and video.url:
+            st.link_button(T("פתיחת הסרטון בפלטפורמה", "Open the video on the platform"), video.url, icon=":material/open_in_new:")
+    else:
+        try:
+            config = social_config(platform, social_values)
+            config_error = None
+        except SocialError as exc:
+            config, config_error = None, str(exc)
+        if config_error:
+            st.error(config_error)
+        if config:
+            state_key = f"oauth_state_{platform}"
+            if not is_pending(st.session_state.get(state_key, "")):
+                st.session_state[state_key] = new_state(platform)
+            with st.container(border=True, key="connect_panel"):
+                st.subheader(T(f"התחברות ל-{names[platform]}", f"Connect {names[platform]}"), icon=":material/link:", text_alignment="center")
+                st.caption(T("תועברו לאישור בפלטפורמה. האפליקציה קוראת את הסרטונים והמדדים שלהם בלבד ולא מפרסמת דבר. הגישה נשמרת רק בזמן הביקור.", "You'll approve access on the platform. The app only reads your videos and their stats and never posts. Access lasts only for this visit."))
+                st.link_button(T(f"התחברות עם {names[platform]}", f"Continue with {names[platform]}"), auth_url(platform, config, st.session_state[state_key]), type="primary", icon=":material/login:", width="stretch")
+        elif not config_error:
+            with st.container(border=True, key="connect_panel"):
+                st.subheader(T(f"{names[platform]} עדיין לא מחובר לאפליקציה", f"{names[platform]} isn't set up yet"), icon=":material/link:", text_alignment="center")
+                st.caption(T("כדי לאפשר חיבור צריך ליצור אפליקציית מפתחים בפלטפורמה ולהגדיר את הפרטים בשרת.", "To allow sign-in, create a developer app on the platform and add its details on the server."))
+            steps = {
+                "instagram": T("1. ב-developers.facebook.com צרו אפליקציה והוסיפו Instagram API with Instagram Login.\n2. הוסיפו את כתובת האפליקציה כ-Redirect URI.\n3. שמרו ב-Secrets את `INSTAGRAM_APP_ID` ו-`INSTAGRAM_APP_SECRET`.\n4. שמרו גם `OAUTH_REDIRECT_URI` עם כתובת האפליקציה. החשבון צריך להיות עסקי או יוצר.", "1. At developers.facebook.com create an app and add Instagram API with Instagram Login.\n2. Add this app's address as a Redirect URI.\n3. Save `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` in Secrets.\n4. Also save `OAUTH_REDIRECT_URI` with this app's address. The account must be a Business or Creator account."),
+                "tiktok": T("1. ב-developers.tiktok.com צרו אפליקציה והפעילו Login Kit ואת ההרשאות user.info.basic ו-video.list.\n2. הוסיפו את כתובת האפליקציה כ-Redirect URI.\n3. שמרו ב-Secrets את `TIKTOK_CLIENT_KEY` ו-`TIKTOK_CLIENT_SECRET`.\n4. שמרו גם `OAUTH_REDIRECT_URI` עם כתובת האפליקציה. TikTok צריכה לאשר את האפליקציה לפני שחשבונות אחרים יוכלו להתחבר.", "1. At developers.tiktok.com create an app and enable Login Kit with the user.info.basic and video.list scopes.\n2. Add this app's address as a Redirect URI.\n3. Save `TIKTOK_CLIENT_KEY` and `TIKTOK_CLIENT_SECRET` in Secrets.\n4. Also save `OAUTH_REDIRECT_URI` with this app's address. TikTok must approve the app before other accounts can sign in."),
+            }
+            with st.expander(T("הוראות הגדרה", "Setup steps"), expanded=True, icon=":material/checklist:"):
+                st.markdown(steps[platform])
+                st.caption(T("הסודות נשארים בשרת ואינם מוצגים בדפדפן.", "The secrets stay on the server and are never shown in the browser."))
 
 elif page == "מערכת":
     left, right = st.columns(2, gap="medium")
