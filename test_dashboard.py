@@ -37,22 +37,23 @@ class DashboardTests(unittest.TestCase):
 
     def test_filter_updates_metrics_and_empty_state_recovers(self):
         app = self.app()
+        app.radio(key='page').set_value('עוד').run()
         app.multiselect(key='types').set_value(['Video']).run()
         self.assertFalse(app.exception)
         self.assertEqual(app.metric[0].value, '7')
-        app.radio(key='page').set_value('מעבדת מודלים').run()
-        app.radio(key='page').set_value('סקירה').run()
+        app.radio(key='page').set_value('חיבור חשבון').run()
+        app.radio(key='page').set_value('עוד').run()
         self.assertEqual(app.metric[0].value, '7')
         app.multiselect(key='types').set_value([]).run()
         self.assertFalse(app.exception)
-        self.assertEqual(len(app.metric), 0)
+        self.assertFalse(any(m.label == 'פוסטים בניתוח' for m in app.metric))
         self.assertTrue(any('אין פוסטים' in item.value for item in app.info))
         next(b for b in app.button if b.label == 'הצגת כל הפוסטים').click().run()
         self.assertEqual(app.metric[0].value, '499')
 
     def test_all_pages_and_missing_cloud(self):
         app = self.app()
-        for page in ['חקר נתונים', 'מעבדת מודלים', 'דוחות', 'מערכת']:
+        for page in ['חיבור חשבון', 'סקירה', 'עוד']:
             app.radio(key='page').set_value(page).run()
             self.assertFalse(app.exception, page)
         app.selectbox(key='source').set_value('Supabase').run()
@@ -69,18 +70,20 @@ class DashboardTests(unittest.TestCase):
 
     def test_model_page_exposes_baseline_result_and_limitations(self):
         app = self.app()
-        app.radio(key='page').set_value('מעבדת מודלים').run()
+        app.radio(key='page').set_value('עוד').run()
         self.assertFalse(app.exception)
         self.assertTrue(any('לא עבר את קו הבסיס' in item.value for item in app.warning))
         limitations = ' '.join(item.value for item in app.info)
         self.assertIn('סט הבדיקה נצפה במהלך הפיתוח', limitations)
         self.assertIn('אינה בודקת חיזוי עתידי', limitations)
-        self.assertEqual(app.metric[0].value, '120.45')
-        self.assertEqual(app.metric[1].value, '125.54')
+        baseline = next(m for m in app.metric if 'קו בסיס' in m.label)
+        chosen = next(m for m in app.metric if 'התחזית שנבחרה' in m.label)
+        self.assertEqual(baseline.value, '120.45')
+        self.assertEqual(chosen.value, '125.54')
 
     def test_system_page_keeps_cloud_optional_and_flow_available(self):
         app = self.app()
-        app.radio(key='page').set_value('מערכת').run()
+        app.radio(key='page').set_value('עוד').run()
         self.assertFalse(app.exception)
         self.assertTrue(any('הרחבה אופציונלית' in item.value for item in app.subheader))
         run_button = next(b for b in app.button if b.label == 'הפעלת התהליך המלא')
@@ -89,6 +92,7 @@ class DashboardTests(unittest.TestCase):
     def test_palette_updates_session_without_mutating_config(self):
         before = read_config()
         app = self.app()
+        app.radio(key='page').set_value('עוד').run()
         app.selectbox(key='palette').set_value('איריס').run()
         self.assertEqual(app.session_state.primary, '#6546C7')
         self.assertEqual(read_config(), before)

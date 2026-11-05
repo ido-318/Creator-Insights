@@ -32,8 +32,8 @@ class PublicDemoTests(unittest.TestCase):
 
     def test_actions_disabled_and_cloud_unavailable(self):
         app = AppTest.from_file('app.py', default_timeout=30).run()
+        app.radio(key='page').set_value('עוד').run()
         self.assertEqual(app.selectbox(key='source').options, ['תוצרים מקומיים'])
-        app.radio(key='page').set_value('מערכת').run()
         self.assertFalse(app.exception)
         labels = [b.label for b in app.button]
         for forbidden in ('הפעלת התהליך המלא', 'סנכרון התוצרים המקומיים לענן', 'בדיקת חיבור', 'שמירת העיצוב'):
