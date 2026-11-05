@@ -2,6 +2,7 @@
 const nav=document.getElementById('nav');
 const onScroll=()=>nav.classList.toggle('scrolled',scrollY>30);
 onScroll();addEventListener('scroll',onScroll,{passive:true});
+const mb=document.getElementById('menu-btn');if(mb)mb.addEventListener('click',()=>nav.classList.toggle('open'));
 document.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
 
 const count=el=>{
@@ -55,6 +56,7 @@ function answer(t){
   add('לא מצאתי תשובה לזה. אפשר לנסות את אחת השאלות למטה, או לעיין ב-README במאגר.','bot',true);
 }
 function ask(t){t=t.trim();if(!t)return;add(t,'me');answer(t)}
+const ai=document.createElement('a');ai.href='/ask';ai.textContent='מודל שפה מקומי (ניסיוני)';ai.style.cssText='flex:none;white-space:nowrap;font-size:13px;padding:6px 14px;border-radius:100px;background:var(--navy);color:#fff';chips.appendChild(ai);
 KB.slice(0,8).forEach(e=>{const b=document.createElement('button');b.type='button';b.textContent=e.q;b.addEventListener('click',()=>ask(e.q));chips.appendChild(b)});
 let started=false;
 function toggle(show){
