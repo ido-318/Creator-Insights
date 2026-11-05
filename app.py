@@ -92,9 +92,34 @@ h1 {{letter-spacing:-.01em}}
 [data-testid="stSidebar"] [role="radiogroup"] label {{padding:.35rem .5rem;border-radius:10px}}
 [data-testid="stSidebar"] [role="radiogroup"] label:hover {{background:rgba(128,128,128,.12)}}
 button:focus-visible, [role="radio"]:focus-visible, input:focus-visible {{outline:3px solid {primary}!important;outline-offset:2px}}
+h1 {{font-weight:800!important;letter-spacing:-.035em!important}}
+.st-key-hero h1, .st-key-hero [data-testid="stCaptionContainer"] {{text-align:center!important}}
+.st-key-hero h1 {{font-size:3.1rem!important;line-height:1.08}}
+button[kind="primary"], button[kind="primaryFormSubmit"] {{border-radius:999px!important;border:0!important;font-weight:700!important;padding:.62rem 1.8rem!important;color:#031A18!important;background:linear-gradient(135deg,#2EE6D3,#19C3B3 55%,#12A4C4)!important;box-shadow:0 10px 28px -8px rgba(25,195,179,.6);transition:transform .15s, box-shadow .15s}}
+button[kind="primary"]:hover, button[kind="primaryFormSubmit"]:hover {{transform:translateY(-2px);box-shadow:0 16px 34px -8px rgba(25,195,179,.75)}}
+button[kind="primary"]:active, button[kind="primaryFormSubmit"]:active {{transform:translateY(0)}}
+button[kind="secondary"], button[kind="secondaryFormSubmit"], [data-testid="stDownloadButton"] button {{border-radius:999px!important;font-weight:600!important;transition:border-color .15s, background .15s}}
+button[kind="secondary"]:hover, [data-testid="stDownloadButton"] button:hover {{border-color:#19C3B3!important;background:rgba(25,195,179,.1)!important}}
+[data-baseweb="select"] > div {{border-radius:999px!important}}
+[data-baseweb="select"] > div:hover {{border-color:#19C3B3!important}}
+.st-key-qc_panel {{border-radius:28px!important;padding:1.4rem 1.6rem 0!important;overflow:hidden;background:linear-gradient(180deg,rgba(25,195,179,.10),rgba(16,24,33,.9) 55%)!important;box-shadow:0 0 0 1px rgba(25,195,179,.28),0 34px 80px -34px rgba(25,195,179,.5)}}
+.st-key-qc_panel [data-testid="stHeading"], .st-key-qc_panel [data-testid="stCaptionContainer"] {{text-align:center!important}}
+.st-key-qc_panel [data-testid="stHeading"], .st-key-qc_panel [data-testid="stHeading"] > * {{display:flex;justify-content:center;width:100%}}
+.st-key-qc_panel [data-testid="stFormSubmitButton"], .st-key-qc_panel [data-testid="stFormSubmitButton"] > div {{display:flex;justify-content:center;width:100%}}
+.st-key-qc_panel [data-testid="stElementContainer"]:has([data-testid="stFormSubmitButton"]) {{width:100%!important;display:flex;justify-content:center}}
+.st-key-qc_panel [data-testid="stFormSubmitButton"] button {{font-size:1.05rem;padding:.7rem 2.6rem!important}}
+.ci-wave {{height:64px;margin:1rem -1.6rem 0;background:repeating-linear-gradient(90deg,rgba(25,195,179,.65) 0 3px,transparent 3px 9px);-webkit-mask-image:linear-gradient(to top,#000,transparent);mask-image:linear-gradient(to top,#000,transparent);opacity:.7}}
+[data-testid="stMetric"] {{padding:.6rem .4rem}}
+[data-testid="stMetricValue"] {{font-weight:800}}
+[data-testid="stSidebar"] [data-baseweb="radio"] > div:first-child {{display:none}}
+[data-testid="stSidebar"] [role="radiogroup"] label {{padding:.55rem .85rem;border-radius:12px;margin-bottom:.15rem;transition:background .15s}}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{background:rgba(25,195,179,.16);box-shadow:inset 0 0 0 1px rgba(25,195,179,.4)}}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p {{color:#5EEAD4;font-weight:700}}
+@media (max-width: 640px) {{.st-key-hero h1 {{font-size:2.1rem!important}} .st-key-qc_panel {{padding:1rem 1rem 0!important}} .ci-wave {{margin:1rem -1rem 0}}}}
 @media (max-width: 640px) {{.block-container {{padding:1.2rem .9rem}} h1 {{font-size:1.9rem!important}}
 [data-testid="stHorizontalBlock"] {{flex-wrap:wrap!important;gap:.6rem!important}}
-[data-testid="stColumn"] {{min-width:calc(50% - .4rem)!important;flex:1 1 calc(50% - .4rem)!important}}
+[data-testid="stColumn"] {{min-width:100%!important;flex:1 1 100%!important}}
+[data-testid="stColumn"]:has([data-testid="stMetric"]) {{min-width:calc(50% - .4rem)!important;flex:1 1 calc(50% - .4rem)!important}}
 [data-testid="stMetricValue"] {{font-size:1.7rem!important}}}}
 @media (prefers-reduced-motion: reduce) {{* {{animation:none!important;transition:none!important}}}}
 </style>""")
@@ -179,9 +204,10 @@ headings = {
 }
 if DEMO:
     st.info(T("הדגמה ציבורית לקריאה בלבד. הרצה מלאה זמינה מקומית (ראו README).", "Read-only public demo. Full runs are available locally (see the README)."), icon=":material/visibility:")
-st.caption("CREATOR INSIGHTS  /  " + PAGE_LABELS[page][1 if RTL else 2].upper())
-st.title(headings[page][0], text_alignment="right" if RTL else "left")
-st.caption(headings[page][1], text_alignment="right" if RTL else "left")
+with st.container(key="hero" if page == "סקירה" else "title_block"):
+    st.caption("CREATOR INSIGHTS  /  " + PAGE_LABELS[page][1 if RTL else 2].upper())
+    st.title(headings[page][0], text_alignment="center" if page == "סקירה" else ("right" if RTL else "left"))
+    st.caption(headings[page][1], text_alignment="center" if page == "סקירה" else ("right" if RTL else "left"))
 
 frame, training, reports, updated = None, None, {}, None
 load_error = None
@@ -246,8 +272,8 @@ if page in ("סקירה", "חקר נתונים"):
     grouped = summarize(filtered)
     leader = grouped.iloc[0]
     if page == "סקירה":
-        with st.container(border=True):
-            st.subheader(T("בדיקה מהירה", "Quick check"), icon=":material/bolt:", text_alignment="right" if RTL else "left")
+        with st.container(border=True, key="qc_panel"):
+            st.subheader(T("בדיקה מהירה", "Quick check"), icon=":material/bolt:", text_alignment="center")
             st.caption(T("בחרו פוסט שאתם שוקלים לפרסם, ונראה איך פוסטים דומים הצליחו בעבר.", "Pick a post you're considering and see how similar past posts did."))
             with st.form("quick_check", border=False):
                 f1, f2, f3 = st.columns(3)
@@ -269,6 +295,7 @@ if page in ("סקירה", "חקר נתונים"):
                     r2.metric(T("רוב הפוסטים", "Most posts"), f"\u2066{used.total_interactions.quantile(.25):,.0f}–{used.total_interactions.quantile(.75):,.0f}\u2069")
                     r3.metric(T("פוסטים דומים", "Similar posts"), f"{len(used):,}")
                     st.caption(T("לעומת כל הפוסטים: ", "Compared with all posts: ") + f"\u2066{typical / overall - 1:+.0%}\u2069. " + T("מבוסס על פוסטים דומים בעבר. זו לא תחזית ואין בה הבטחה.", "Based on similar past posts. This is not a forecast or a promise.") + ("" if used is near else T(" השעה לא נלקחה בחשבון כי יש מעט פוסטים בה.", " The hour was ignored because there are few posts near it.")) + (T(" מעט פוסטים, אז התוצאה פחות אמינה.", " Few posts, so treat this with care.") if len(used) < 15 else ""))
+            st.html('<div class="ci-wave" aria-hidden="true"></div>')
     kpis = st.columns(4, gap="small")
     kpis[0].metric(T("פוסטים בניתוח", "Posts analysed"), f"{len(filtered):,}", border=True)
     kpis[1].metric(T("סך אינטראקציות", "Total interactions"), f"{filtered.total_interactions.sum():,}", border=True)
