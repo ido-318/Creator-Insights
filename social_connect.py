@@ -141,21 +141,21 @@ def _frame(rows):
 
 
 def fetch_videos(platform, token, client=None):
-    """Return (account name, DataFrame of the account's recent videos)."""
+    """Return (account name, DataFrame of recent videos, platform account id)."""
     own = client is None
     client = client or httpx.Client(timeout=TIMEOUT)
     try:
         if platform == "instagram":
-            me = _json(client.get(f"{INSTAGRAM_API}/me", params={"fields": "username", "access_token": token}), "Instagram profile")
+            me = _json(client.get(f"{INSTAGRAM_API}/me", params={"fields": "user_id,username", "access_token": token}), "Instagram profile")
             media = _json(client.get(f"{INSTAGRAM_API}/me/media", params={
                 "fields": "id,caption,media_type,permalink,timestamp,like_count,comments_count", "limit": 50, "access_token": token}), "Instagram videos")
             rows = [{"id": m.get("id"), "title": (m.get("caption") or "").strip().splitlines()[0] if (m.get("caption") or "").strip() else "",
                      "created": m.get("timestamp"), "views": None, "likes": m.get("like_count"), "comments": m.get("comments_count"),
                      "shares": None, "url": m.get("permalink")}
                     for m in media.get("data", []) if m.get("media_type") == "VIDEO"]
-            return "@" + str(me.get("username", "")), _frame(rows)
+            return "@" + str(me.get("username", "")), _frame(rows), str(me.get("user_id") or me.get("id") or "")
         headers = {"Authorization": f"Bearer {token}"}
-        info = _json(client.get(f"{TIKTOK_API}/user/info/", params={"fields": "display_name"}, headers=headers), "TikTok profile")
+        info = _json(client.get(f"{TIKTOK_API}/user/info/", params={"fields": "open_id,display_name"}, headers=headers), "TikTok profile")
         listing = _json(client.post(f"{TIKTOK_API}/video/list/", params={"fields": "id,title,create_time,share_url,view_count,like_count,comment_count,share_count"},
                                     headers=headers, json={"max_count": 20}), "TikTok videos")
         rows = [{"id": v.get("id"), "title": (v.get("title") or "").strip(),
@@ -163,7 +163,8 @@ def fetch_videos(platform, token, client=None):
                  "views": v.get("view_count"), "likes": v.get("like_count"), "comments": v.get("comment_count"),
                  "shares": v.get("share_count"), "url": v.get("share_url")}
                 for v in (listing.get("data") or {}).get("videos", [])]
-        return str(((info.get("data") or {}).get("user") or {}).get("display_name", "")), _frame(rows)
+        user = (info.get("data") or {}).get("user") or {}
+        return str(user.get("display_name", "")), _frame(rows), str(user.get("open_id", ""))
     except httpx.HTTPError:
         raise SocialError("Could not reach the platform. Try again in a moment.") from None
     finally:

@@ -83,14 +83,14 @@ class ExchangeAndFetchTests(unittest.TestCase):
     def test_fetch_instagram_keeps_only_videos(self):
         def handler(request):
             if request.url.path.endswith("/me"):
-                return httpx.Response(200, json={"username": "creator"})
+                return httpx.Response(200, json={"username": "creator", "user_id": "17841"})
             return httpx.Response(200, json={"data": [
                 {"id": "1", "caption": "First reel\nmore", "media_type": "VIDEO", "permalink": "https://i/1", "timestamp": "2026-10-01T10:30:00+0000", "like_count": 40, "comments_count": 5},
                 {"id": "2", "caption": "Photo", "media_type": "IMAGE", "permalink": "https://i/2", "timestamp": "2026-10-02T10:30:00+0000", "like_count": 9, "comments_count": 1}]})
 
         with client_for(handler) as client:
-            name, videos = sc.fetch_videos("instagram", "tok", client)
-        self.assertEqual(name, "@creator")
+            name, videos, account = sc.fetch_videos("instagram", "tok", client)
+        self.assertEqual((name, account), ("@creator", "17841"))
         self.assertEqual(list(videos.id), ["1"])
         self.assertEqual(videos.iloc[0].title, "First reel")
 
@@ -98,14 +98,14 @@ class ExchangeAndFetchTests(unittest.TestCase):
         def handler(request):
             self.assertEqual(request.headers["Authorization"], "Bearer tok")
             if "user/info" in request.url.path:
-                return httpx.Response(200, json={"data": {"user": {"display_name": "Dana"}}})
+                return httpx.Response(200, json={"data": {"user": {"display_name": "Dana", "open_id": "oid-9"}}})
             return httpx.Response(200, json={"data": {"videos": [
                 {"id": "a", "title": "t1", "create_time": 1761993000, "share_url": "https://t/a", "view_count": 1000, "like_count": 90, "comment_count": 10, "share_count": 5},
                 {"id": "b", "title": "t2", "create_time": 1762079400, "share_url": "https://t/b", "view_count": 300, "like_count": 20, "comment_count": 1, "share_count": 0}]}})
 
         with client_for(handler) as client:
-            name, videos = sc.fetch_videos("tiktok", "tok", client)
-        self.assertEqual(name, "Dana")
+            name, videos, account = sc.fetch_videos("tiktok", "tok", client)
+        self.assertEqual((name, account), ("Dana", "oid-9"))
         self.assertEqual(len(videos), 2)
         self.assertEqual(sc.interactions(videos.iloc[1]), 105.0)
 
