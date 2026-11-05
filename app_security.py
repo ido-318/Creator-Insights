@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent
 TOKEN_PATH = ROOT / ".streamlit/access_token"
 TOKEN_ENV = "CREATOR_INSIGHTS_ACCESS_TOKEN"
 AUTH_STATE = "_authenticated_token_digest"
+DEMO_ENV = "CREATOR_INSIGHTS_PUBLIC_DEMO"
 
 
 class SecurityError(RuntimeError):
@@ -60,6 +61,12 @@ def authenticate(state, submitted, token):
         state.pop(AUTH_STATE, None)
         state.pop("cloud_snapshot", None)
         state["_login_failed"] = True
+
+
+def public_demo(values=None):
+    """Read-only public demo: saved artifacts only, no actions, no credentials."""
+    value = (values or {}).get(DEMO_ENV, os.getenv(DEMO_ENV, ""))
+    return str(value).strip().lower() in {"1", "true", "yes"}
 
 
 def require_local_access(st, values=None):
