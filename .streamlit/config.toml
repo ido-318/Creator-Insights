@@ -14,17 +14,17 @@ toolbarMode = "minimal"
 showErrorDetails = "none"
 
 [theme]
-base = "light"
-primaryColor = "#087F8C"
-backgroundColor = "#FBFCFE"
-secondaryBackgroundColor = "#F0F4F8"
-textColor = "#172B4D"
-borderColor = "#DFE6EE"
-linkColor = "#087F8C"
+base = "dark"
+primaryColor = "#19C3B3"
+backgroundColor = "#080C12"
+secondaryBackgroundColor = "#101821"
+textColor = "#E8F3F3"
+borderColor = "#1F2D3A"
+linkColor = "#5EEAD4"
 font = "sans-serif"
 baseFontSize = 15
-baseRadius = "12px"
-buttonRadius = "10px"
+baseRadius = "14px"
+buttonRadius = "12px"
 headingFontSizes = [
     "40px",
     "28px",
@@ -46,12 +46,12 @@ metricValueFontWeight = 600
 showWidgetBorder = true
 showSidebarBorder = true
 chartCategoricalColors = [
-    "#087F8C",
-    "#4263EB",
-    "#D19134",
-    "#A181CD",
+    "#19C3B3",
+    "#4F8CFF",
+    "#F2B84B",
+    "#B78CF0",
 ]
 
 [theme.sidebar]
-backgroundColor = "#F0F4F8"
-secondaryBackgroundColor = "#FFFFFF"
+backgroundColor = "#05080D"
+secondaryBackgroundColor = "#101821"

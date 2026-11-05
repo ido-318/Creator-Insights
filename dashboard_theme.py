@@ -8,7 +8,9 @@ import tomllib
 import tomli_w
 
 CONFIG_PATH = Path(__file__).resolve().parent / ".streamlit/config.toml"
+DARK_BACKGROUND = "#080C12"
 PALETTES = {
+    "טורקיז לילה": ("#19C3B3", "#4F8CFF"),
     "אוקיינוס": ("#087F8C", "#4263EB"),
     "איריס": ("#6546C7", "#087F8C"),
     "שקיעה": ("#B45309", "#B33F62"),
@@ -32,22 +34,23 @@ def build_theme(config, primary, secondary, dark=False):
     for color in (primary, secondary):
         if not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
             raise ValueError("יש לבחור צבע תקין בפורמט HEX.")
-    if contrast(primary, "#FFFFFF") < 4.5:
-        raise ValueError("הצבע הראשי בהיר מדי לטקסט לבן. בחרו גוון כהה יותר.")
+    readable = contrast(primary, "#FFFFFF") >= 4.5 or (dark and contrast(primary, DARK_BACKGROUND) >= 4.5)
+    if not readable:
+        raise ValueError("הצבע הראשי אינו קריא על הרקע. בחרו גוון אחר.")
     result = deepcopy(config)
     theme = result.setdefault("theme", {})
     theme.update({
         "base": "dark" if dark else "light",
         "primaryColor": primary,
-        "linkColor": "#8EDDE5" if dark else primary,
-        "backgroundColor": "#101925" if dark else "#FBFCFE",
-        "secondaryBackgroundColor": "#1B293B" if dark else "#F0F4F8",
-        "textColor": "#EDF3FC" if dark else "#172B4D",
-        "borderColor": "#304157" if dark else "#DFE6EE",
+        "linkColor": "#5EEAD4" if dark else primary,
+        "backgroundColor": DARK_BACKGROUND if dark else "#FBFCFE",
+        "secondaryBackgroundColor": "#101821" if dark else "#F0F4F8",
+        "textColor": "#E8F3F3" if dark else "#172B4D",
+        "borderColor": "#1F2D3A" if dark else "#DFE6EE",
         "chartCategoricalColors": [primary, secondary, "#D19134", "#A181CD"],
         "sidebar": {
-            "backgroundColor": "#152131" if dark else "#F0F4F8",
-            "secondaryBackgroundColor": "#1B293B" if dark else "#FFFFFF",
+            "backgroundColor": "#05080D" if dark else "#F0F4F8",
+            "secondaryBackgroundColor": "#101821" if dark else "#FFFFFF",
         },
     })
     return result

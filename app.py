@@ -37,11 +37,11 @@ def T(he, en):
 
 TYPE_EN = {"Photo": "Photo", "Status": "Status", "Link": "Link", "Video": "Video"}
 PAGE_LABELS = {
-    "סקירה": (":material/dashboard:", "סקירה", "Overview"),
-    "חקר נתונים": (":material/query_stats:", "חקר נתונים", "Explore"),
-    "מעבדת מודלים": (":material/science:", "תחזיות", "Forecasts"),
+    "סקירה": (":material/home:", "בית", "Home"),
+    "חקר נתונים": (":material/bar_chart:", "גרפים ונתונים", "Charts & data"),
+    "מעבדת מודלים": (":material/insights:", "תחזיות", "Forecasts"),
     "דוחות": (":material/article:", "דוחות", "Reports"),
-    "מערכת": (":material/settings:", "ניהול", "Admin"),
+    "מערכת": (":material/settings:", "הגדרות", "Settings"),
 }
 REPORT_EN = {"insights.md": "Insights", "evaluation_report.md": "Evaluation report", "model_card.md": "Forecast summary", "scientist_review.md": "Expert review"}
 PAID_EN = {"הכל": "All", "אורגני": "Organic", "ממומן": "Paid"}
@@ -79,6 +79,10 @@ st.html(f"""<style>
 [data-testid="stMetric"] {{padding:.35rem .25rem}}
 [data-testid="stMetricLabel"] {{opacity:.8}}
 h1 {{letter-spacing:-.01em}}
+.stApp {{background-image:radial-gradient(900px 420px at 88% -6%, rgba(25,195,179,.16), transparent 62%), radial-gradient(700px 420px at 0% 105%, rgba(79,140,255,.09), transparent 60%)}}
+[data-testid="stVerticalBlockBorderWrapper"] {{transition:border-color .2s}}
+[data-testid="stVerticalBlockBorderWrapper"]:hover {{border-color:rgba(25,195,179,.55)}}
+[data-testid="stMetricValue"] {{color:#5EEAD4}}
 .ci-brand {{display:flex;align-items:center;gap:.65rem;direction:{'rtl' if RTL else 'ltr'};margin:.25rem 0 1rem}}
 .ci-brand img {{flex:none}}
 .ci-brand b {{display:block;font-size:1.05rem;line-height:1.2}}
@@ -117,7 +121,7 @@ def cached_local(signature):
 
 
 with st.sidebar:
-    logo = urllib.parse.quote(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><polygon points="20,3 4,35 20,25" fill="{primary}"/><polygon points="20,3 36,35 20,25" fill="{secondary}" opacity=".6"/><polygon points="4,35 36,35 20,25" fill="#12304f"/></svg>')
+    logo = urllib.parse.quote(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><polygon points="20,3 4,35 20,25" fill="{primary}"/><polygon points="20,3 36,35 20,25" fill="{secondary}" opacity=".6"/><polygon points="4,35 36,35 20,25" fill="#5EEAD4"/></svg>')
     st.html(f"""<div class="ci-brand"><img src="data:image/svg+xml,{logo}" alt="" width="34" height="34"><div><b>Creator Insights</b><span>{T('אנליטיקה ליוצרי תוכן', 'Analytics for content creators')}</span></div></div>""")
     pages = list(PAGE_LABELS)
     page = st.radio(T("ניווט", "Navigation"), pages, format_func=lambda p: PAGE_LABELS[p][0] + "  " + PAGE_LABELS[p][1 if RTL else 2], key="page", label_visibility="collapsed")
@@ -134,9 +138,8 @@ with st.sidebar:
         st.slider(T("חודשי פרסום", "Publishing months"), 1, 12, key="months", persist_state="session")
         st.segmented_control(T("קידום", "Promotion"), ["הכל", "אורגני", "ממומן"], format_func=lambda v: v if RTL else PAID_EN[v], required=True, key="paid", persist_state="session")
         st.button(T("איפוס מסננים", "Reset filters"), icon=":material/restart_alt:", on_click=reset_filters, width="stretch")
-    with st.expander(T("מקור נתונים", "Data source"), icon=":material/database:"):
+    with st.expander(T("הגדרות", "Settings"), icon=":material/tune:"):
         source = st.selectbox(T("מקור נתונים", "Data source"), ["תוצרים מקומיים"] if DEMO else ["תוצרים מקומיים", "Supabase"], format_func=lambda v: v if RTL else {"תוצרים מקומיים": "Saved results", "Supabase": "Cloud snapshot"}[v], key="source", label_visibility="collapsed")
-    with st.expander(T("עיצוב וצבעים", "Appearance"), icon=":material/palette:"):
         st.selectbox(T("ערכת צבעים", "Palette"), list(PALETTES), key="palette", on_change=choose_palette)
         st.color_picker(T("צבע ראשי", "Primary color"), key="primary")
         st.color_picker(T("צבע משני", "Secondary color"), key="secondary")
@@ -168,14 +171,14 @@ except StoreError as exc:
     store_error = str(exc)
 
 headings = {
-    "סקירה": (T("מבט אחד. יותר תובנות.", "One view. More insight."), T("כל מה שצריך כדי להבין את ביצועי התוכן שלך, במקום אחד.", "Everything you need to understand your content performance, in one place.")),
-    "חקר נתונים": (T("הסיפור שמאחורי המספרים", "The story behind the numbers"), T("משווים סוגי תוכן, שעות פרסום וקידום — ומעמיקים בנתונים.", "Compare content types, posting hours and promotion, then dig into the data.")),
+    "סקירה": (T("הכול במבט אחד", "Everything at a glance"), T("בדקו רעיון, ותראו איך תוכן דומה הצליח.", "Check an idea and see how similar content did.")),
+    "חקר נתונים": (T("גרפים ונתונים", "Charts & data"), T("מה עובד, ומתי כדאי לפרסם.", "What works, and when to post.")),
     "מעבדת מודלים": (T("בודקים. משווים. לומדים.", "Test. Compare. Learn."), T("תוצאות הניסוי ומה אפשר ללמוד מהן בזהירות.", "Experiment results and what can be learned from them, carefully.")),
     "דוחות": (T("מהנתונים לתמונה ברורה", "From data to a clear picture"), T("דוחות המחקר, מסקנות האנליסטים והערכת התחזיות.", "Research reports, analyst conclusions and forecast review.")),
-    "מערכת": (T("ניהול סביבת העבודה", "Workspace administration"), T("הפעלת התהליך, חיבור לענן והיסטוריית ריצות.", "Run the full process, connect to the cloud and review run history.")),
+    "מערכת": (T("הגדרות", "Settings"), T("הרצה, חיבור לענן והיסטוריה.", "Run, connect to the cloud and see history.")),
 }
 if DEMO:
-    st.info(T("הדגמה ציבורית לקריאה בלבד: מוצגים התוצרים השמורים של הפרויקט. הפעלת הסוכנים, סנכרון לענן ושמירת עיצוב מושבתים. להרצה מלאה יש להפעיל מקומית לפי ה־README.", "Read-only public demo: you see the project's saved results. Running the agents, cloud sync and saving appearance are disabled. Run locally to use everything (see the README)."), icon=":material/visibility:")
+    st.info(T("הדגמה ציבורית לקריאה בלבד. הרצה מלאה זמינה מקומית (ראו README).", "Read-only public demo. Full runs are available locally (see the README)."), icon=":material/visibility:")
 st.caption("CREATOR INSIGHTS  /  " + PAGE_LABELS[page][1 if RTL else 2].upper())
 st.title(headings[page][0], text_alignment="right" if RTL else "left")
 st.caption(headings[page][1], text_alignment="right" if RTL else "left")
@@ -242,16 +245,35 @@ if page in ("סקירה", "חקר נתונים"):
         st.stop()
     grouped = summarize(filtered)
     leader = grouped.iloc[0]
-    kpis = st.columns(3, gap="small")
+    if page == "סקירה":
+        with st.container(border=True):
+            st.subheader(T("בדיקה מהירה", "Quick check"), icon=":material/bolt:", text_alignment="right" if RTL else "left")
+            st.caption(T("בחרו פוסט שאתם שוקלים לפרסם, ונראה איך פוסטים דומים הצליחו בעבר.", "Pick a post you're considering and see how similar past posts did."))
+            with st.form("quick_check", border=False):
+                f1, f2, f3 = st.columns(3)
+                qt = f1.selectbox(T("סוג תוכן", "Content type"), list(POST_TYPES), format_func=type_name, key=f"qc_type_{LANG}")
+                qh = f2.selectbox(T("שעת פרסום", "Posting hour"), list(range(24)), index=10, format_func=lambda h: f"{h:02d}:00", key=f"qc_hour_{LANG}")
+                qp = f3.selectbox(T("קידום", "Promotion"), ["אורגני", "ממומן"], format_func=lambda v: v if RTL else PAID_EN[v], key=f"qc_paid_{LANG}")
+                go = st.form_submit_button(T("בדיקה", "Check"), icon=":material/play_arrow:", type="primary")
+            if go:
+                similar = frame[(frame.post_type == qt) & (frame.paid == (1 if qp == "ממומן" else 0))]
+                near = similar[similar.post_hour.between(qh - 3, qh + 3)]
+                used = near if len(near) >= 8 else similar
+                if used.empty:
+                    st.info(T("אין בנתונים פוסטים דומים לבחירה הזאת. נסו סוג תוכן או קידום אחר.", "There are no similar posts for this choice. Try another content type or promotion."))
+                else:
+                    typical = used.total_interactions.median()
+                    overall = frame.total_interactions.median()
+                    r1, r2, r3 = st.columns(3)
+                    r1.metric(T("תוצאה אופיינית", "Typical result"), f"{typical:,.0f}")
+                    r2.metric(T("רוב הפוסטים", "Most posts"), f"\u2066{used.total_interactions.quantile(.25):,.0f}–{used.total_interactions.quantile(.75):,.0f}\u2069")
+                    r3.metric(T("פוסטים דומים", "Similar posts"), f"{len(used):,}")
+                    st.caption(T("לעומת כל הפוסטים: ", "Compared with all posts: ") + f"\u2066{typical / overall - 1:+.0%}\u2069. " + T("מבוסס על פוסטים דומים בעבר. זו לא תחזית ואין בה הבטחה.", "Based on similar past posts. This is not a forecast or a promise.") + ("" if used is near else T(" השעה לא נלקחה בחשבון כי יש מעט פוסטים בה.", " The hour was ignored because there are few posts near it.")) + (T(" מעט פוסטים, אז התוצאה פחות אמינה.", " Few posts, so treat this with care.") if len(used) < 15 else ""))
+    kpis = st.columns(4, gap="small")
     kpis[0].metric(T("פוסטים בניתוח", "Posts analysed"), f"{len(filtered):,}", border=True)
     kpis[1].metric(T("סך אינטראקציות", "Total interactions"), f"{filtered.total_interactions.sum():,}", border=True)
     kpis[2].metric(T("חציון לפוסט", "Median per post"), f"{filtered.total_interactions.median():,.1f}", help=T("מחצית מהפוסטים קיבלו יותר מהערך הזה, ומחצית פחות.", "Half the posts got more than this, half got less."), border=True)
-    kpis2 = st.columns(3, gap="small")
-    kpis2[0].metric(T("שיעור תוכן ממומן", "Paid share"), f"{filtered.paid.mean():.0%}", border=True)
-    insight = kpis2[1:]
-    insight[0].metric(T("סוג התוכן המוביל", "Top content type"), type_name(leader.post_type), border=True)
-    best_month = filtered.groupby("post_month").total_interactions.median().idxmax()
-    insight[1].metric(T("החודש החזק ביותר", "Strongest month"), T(f"חודש {best_month}", f"Month {best_month}"), help=T("לפי חציון אינטראקציות בפוסטים שנבחרו.", "By median interactions of the selected posts."), border=True)
+    kpis[3].metric(T("סוג התוכן המוביל", "Top content type"), type_name(leader.post_type), border=True)
 
     if page == "סקירה":
         left, right = st.columns(2, gap="medium")
@@ -268,10 +290,7 @@ if page in ("סקירה", "חקר נתונים"):
                 tooltip=[alt.Tooltip("post_month:O", title=T("חודש", "Month")), alt.Tooltip("value:Q", title=T("חציון", "Median"), format=",.1f"), alt.Tooltip("count:Q", title=T("פוסטים", "Posts"))],
             ).properties(height=245)
             st.altair_chart(chart_style(chart), alt=T("חציון אינטראקציות לכל חודש פרסום, לפי המסננים", "Median interactions per publishing month, for the current filters"))
-        with st.container(border=True):
-            st.subheader(T("נקודה למחשבה", "Worth a closer look"), icon=":material/lightbulb:", text_alignment="right" if RTL else "left")
-            st.markdown(T(f"**{type_name(leader.post_type)}** מוביל בחציון האינטראקציות בסינון הנוכחי: **{leader.median_interactions:,.1f}**, על בסיס **{int(leader.post_count)} פוסטים**.", f"**{type_name(leader.post_type)}** leads on median interactions for the current filters: **{leader.median_interactions:,.1f}**, based on **{int(leader.post_count)} posts**."))
-            st.caption(T("זהו קשר תיאורי, לא הוכחה שסוג התוכן גורם לביצועים. השוו גם את גודל הקבוצות לפני שמסיקים מסקנות.", "This describes a pattern; it doesn't prove the content type causes the result. Compare group sizes before drawing conclusions."))
+        st.caption(T(f"{type_name(leader.post_type)} מוביל בסינון הנוכחי: חציון {leader.median_interactions:,.1f} על בסיס {int(leader.post_count)} פוסטים. זה קשר תיאורי, לא הוכחה.", f"{type_name(leader.post_type)} leads for the current filters: median {leader.median_interactions:,.1f} across {int(leader.post_count)} posts. This describes a pattern; it doesn't prove cause."))
     else:
         left, right = st.columns(2, gap="medium")
         with left.container(border=True):
