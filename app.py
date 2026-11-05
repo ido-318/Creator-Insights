@@ -9,7 +9,7 @@ import streamlit as st
 from dashboard_data import ARTIFACTS, POST_TYPES, REPORTS, filter_posts, flow_history, load_local, summarize
 from dashboard_theme import PALETTES, build_theme, export_theme, read_config, save_theme
 from supabase_store import StoreError, SupabaseStore, build_snapshot, get_config
-from app_security import read_log_tail, redact_secrets, require_local_access
+from app_security import public_demo, read_log_tail, redact_secrets, require_local_access
 from workspace_runtime import WorkspaceBusy, run_ui_flow
 
 st.set_page_config(page_title="Creator Insights | סביבת המחקר שלך", page_icon=":material/insights:", layout="wide")
@@ -18,7 +18,12 @@ try:
     secret_values = dict(st.secrets)
 except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
     secret_values = {}
-require_local_access(st, secret_values)
+DEMO = public_demo(secret_values)
+if DEMO:
+    # Public demo exposes saved artifacts only: never pass credentials to the page.
+    secret_values = {}
+else:
+    require_local_access(st, secret_values)
 
 # Direction only: visual colors, spacing, typography and widgets use native theming.
 # Keep code, charts and numeric tables in their natural LTR direction.
@@ -60,7 +65,7 @@ with st.sidebar:
                     format_func=lambda name: {"סקירה": ":material/dashboard:  סקירה", "חקר נתונים": ":material/query_stats:  חקר נתונים", "מעבדת מודלים": ":material/science:  מעבדת מודלים", "דוחות": ":material/article:  דוחות", "מערכת": ":material/settings:  מערכת"}[name], key="page", label_visibility="collapsed")
     st.space("small")
     st.caption("מקור הנתונים")
-    source = st.selectbox("מקור נתונים", ["תוצרים מקומיים", "Supabase"], key="source", label_visibility="collapsed")
+    source = st.selectbox("מקור נתונים", ["תוצרים מקומיים"] if DEMO else ["תוצרים מקומיים", "Supabase"], key="source", label_visibility="collapsed")
     if page in ("סקירה", "חקר נתונים"):
         st.markdown("#### מסננים")
         st.multiselect("סוגי תוכן", list(POST_TYPES), format_func=POST_TYPES.get, key="types", persist_state="session")
@@ -73,7 +78,7 @@ with st.sidebar:
         st.color_picker("צבע משני", key="secondary")
         st.toggle("מצב כהה", key="dark")
         st.caption("הגרפים מציגים את הצבעים מיד. שמירה מחילה את העיצוב על סביבת העבודה המקומית ושומרת אותו לפתיחה הבאה.")
-        if st.button("שמירת העיצוב", icon=":material/check:", width="stretch"):
+        if not DEMO and st.button("שמירת העיצוב", icon=":material/check:", width="stretch"):
             try:
                 theme_config = build_theme(config, st.session_state.primary, st.session_state.secondary, st.session_state.dark)
                 save_theme(theme_config)
@@ -87,13 +92,14 @@ with st.sidebar:
             st.caption("בחרו צבע ראשי כהה יותר כדי לשמור ערכה נגישה.")
     st.space("small")
     st.caption("מחקר תוכן · Facebook Metrics\n\nפרויקט לימודי / עמוד מקור יחיד")
-    st.button("יציאה", icon=":material/logout:", on_click=st.session_state.clear)
+    if not DEMO:
+        st.button("יציאה", icon=":material/logout:", on_click=st.session_state.clear)
 
 primary, secondary = st.session_state.primary, st.session_state.secondary
 store = None
 store_error = None
 try:
-    settings = get_config(secret_values)
+    settings = None if DEMO else get_config(secret_values)
     store = SupabaseStore(settings) if settings else None
 except StoreError as exc:
     store_error = str(exc)
@@ -105,6 +111,8 @@ headings = {
     "דוחות": ("מהנתונים לתמונה ברורה", "דוחות המחקר, מסקנות האנליסטים וביקורת המודל."),
     "מערכת": ("סביבת העבודה שלך", "הפעלת התהליך, חיבור לענן והיסטוריית הריצות."),
 }
+if DEMO:
+    st.info("הדגמה ציבורית לקריאה בלבד: מוצגים התוצרים השמורים של הפרויקט. הפעלת הסוכנים, סנכרון לענן ושמירת עיצוב מושבתים. להרצה מלאה יש להפעיל מקומית לפי ה־README.", icon=":material/visibility:")
 st.caption("CREATOR INSIGHTS  /  " + page)
 st.title(headings[page][0], text_alignment="right")
 st.caption(headings[page][1], text_alignment="right")
@@ -264,7 +272,9 @@ elif page == "מערכת":
         st.subheader("התהליך המלא", icon=":material/account_tree:", text_alignment="right")
         st.markdown("**01 · ניתוח** — ניקוי, מחקר וחוזה נתונים\n\n**02 · אימות** — בדיקת החוזה וטביעות הקבצים\n\n**03 · מידול** — אימון, השוואה וביקורת")
         st.caption("ההפעלה משתמשת בשישה סוכני Claude ומעדכנת את התוצרים המקומיים. קריאות API מחויבות לפי השימוש. פתיחת הדשבורד אינה מפעילה אותם.")
-        if st.button("הפעלת התהליך המלא", icon=":material/play_arrow:", type="primary", width="stretch"):
+        if DEMO:
+            st.info("הפעלת התהליך מושבתת בהדגמה הציבורית, כי היא מפעילה קריאות API בתשלום.")
+        elif st.button("הפעלת התהליך המלא", icon=":material/play_arrow:", type="primary", width="stretch"):
             ARTIFACTS.mkdir(exist_ok=True)
             try:
                 with st.status("התהליך פועל — ניתוח, אימות ומידול…", expanded=True) as status:
