@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>שאלו את Creator Insights</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/ask.css">
+</head>
+<body class="ask">
+<header class="ask-top"><div class="wrap">
+  <a href="/" class="back">← חזרה לאתר</a>
+  <span class="logo"><span>Creator <b>Insights</b></span></span>
+</div></header>
+<main class="wrap ask-main">
+  <div class="eyebrow">ניסיוני</div>
+  <h1>שאלו את המודל על הפרויקט</h1>
+  <p class="lead">מודל שפה קטן שרץ אצלכם בדפדפן ועונה אך ורק על סמך תיעוד הפרויקט. השאלות לא נשלחות לשום שרת.</p>
+
+  <section id="gate" class="gate">
+    <ul>
+      <li>ההפעלה הראשונה מורידה כ-2.5 ג'יגה-בייט ונשמרת במטמון הדפדפן.</li>
+      <li>דורש דפדפן עם WebGPU, למשל Chrome או Edge עדכניים במחשב.</li>
+      <li>הקבצים נטענים מ-jsDelivr, מ-Hugging Face ומ-GitHub. רק העמוד הזה מורשה לפנות אליהם.</li>
+      <li>מודל קטן יכול לטעות. כשהשאלה אינה על הפרויקט הוא לא נקרא בכלל, ומוצגת הודעה שאין תשובה.</li>
+    </ul>
+    <button type="button" id="start" class="btn fill">הפעלת המודל</button>
+    <p id="gate-msg" class="gate-msg" role="status"></p>
+    <progress id="prog" max="100" value="0" hidden></progress>
+  </section>
+
+  <section id="chat" class="chat" hidden>
+    <div id="log" class="log" role="log" aria-live="polite"></div>
+    <form id="form" class="form" autocomplete="off">
+      <input id="input" type="text" maxlength="300" placeholder="שאלה על הפרויקט…" aria-label="שאלה">
+      <button type="submit" id="send">שליחה</button>
+    </form>
+  </section>
+</main>
+<script type="module" src="/ask.js"></script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creator Insights</title>
+<meta name="description" content="מערכת לימודית לניתוח ביצועי תוכן, השוואת מודלים והערכה כנה של מגבלות החיזוי.">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="preload" href="/fonts/f0.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav id="nav">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="Creator Insights">
+      <svg viewBox="0 0 40 40"><polygon points="20,3 4,35 20,25" fill="#17a2b8"/><polygon points="20,3 36,35 20,25" fill="#8fdcea"/><polygon points="4,35 36,35 20,25" fill="#1a4d7c"/></svg>
+      <span>Creator <b>Insights</b></span>
+    </a>
+    <div class="links">
+      <a href="#about">הפרויקט</a>
+      <a href="#crews">הצוותים</a>
+      <a href="#results">תוצאות</a>
+      <a href="#dashboard">דשבורד</a>
+      <a href="#limits">שקיפות</a>
+    </div>
+    <a class="btn fill" href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer" style="padding:10px 22px">GitHub</a>
+    <button class="menu-btn" aria-label="תפריט" id="menu-btn">☰</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">פרויקט גמר · CrewAI · Python</div>
+    <h1>מבינים <b>מה באמת</b> עובד בתוכן</h1>
+    <p class="lead">ניתוח ביצועי תוכן, השוואת מודלים והערכה כנה של מגבלות החיזוי – באמצעות שני צוותי סוכנים וחוזה נתונים שנבדק בקוד.</p>
+    <div class="cta">
+      <a class="btn fill" href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer">לצפייה בקוד
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
+      <a class="btn" href="https://creator-insights-f3e3mylxf4djfkityn79jt.streamlit.app/" target="_blank" rel="noopener noreferrer">לדשבורד החי</a>
+      <a class="btn" href="#crews">איך זה עובד</a>
+    </div>
+    <div class="obj" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fd0e0"/><stop offset="1" stop-color="#17a2b8"/></linearGradient>
+          <linearGradient id="gB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6e6f0"/><stop offset="1" stop-color="#4fbfd6"/></linearGradient>
+          <linearGradient id="gC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b6aa3"/><stop offset="1" stop-color="#12304f"/></linearGradient>
+        </defs>
+        <polygon class="f" style="--x:-150px;--y:-80px;--r:-40deg;--d:0s" points="200,45 52,320 200,235" fill="url(#gA)"/>
+        <polygon class="f" style="--x:150px;--y:-80px;--r:40deg;--d:.12s" points="200,45 348,320 200,235" fill="url(#gB)"/>
+        <polygon class="f" style="--x:0px;--y:150px;--r:-25deg;--d:.24s" points="52,320 348,320 200,235" fill="url(#gC)"/>
+      </svg>
+      <div class="shadow"></div>
+    </div>
+    <div class="scroll-hint">Scroll<i></i></div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">הפרויקט</div>
+      <h2>מערכת שבודקת את עצמה, <b>לפני</b> שהיא מנבאת</h2>
+      <p>500 פוסטים היסטוריים ממותג קוסמטיקה. שני צוותי CrewAI, בדיקת מעבר מחייבת ביניהם, ודשבורד בעברית שמציג את התוצאות – כולל מה שלא הצליח.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar rv"><div class="n">01</div><h3>חוזה<b>נתונים</b></h3><p>עמודות, סוגים, ערכים מותרים ויחידות מוגדרים בקובץ חוזה. הצד המקבל בודק התאמה לגרסה הנתמכת – שינוי שקט לא עובר.</p></div>
+      <div class="pillar rv d1"><div class="n">02</div><h3>שלמות<b>המסירה</b></h3><p>טביעות SHA-256 של הנתונים הנקיים והחוזה נשמרות עם הפרסום. כל שינוי בקבצים לאחר מכן נחסם עד לפרסום מסירה חדשה.</p></div>
+      <div class="pillar rv d2"><div class="n">03</div><h3>השוואה<b>שקופה</b></h3><p>כל מודל נמדד מול קו בסיס פשוט, עם אימות צולב וסטיית תקן. המערכת מחשבת מחדש את המדדים ולא סומכת על טענות.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="soft" id="crews">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">איך זה בנוי</div>
+      <h2>שלושה מרכיבים, <b>תהליך אחד</b></h2>
+      <p>החישובים מתבצעים בקוד Python. הסוכנים משתמשים בכלים ומסבירים את התוצאות.</p>
+    </div>
+    <div class="rows">
+      <div class="row rv">
+        <div><div class="tag">CREW 01</div><h3><b>צוות</b> האנליסטים</h3><div class="meta">3 סוכנים</div></div>
+        <p>מנקה את הנתונים (499 שורות לאחר הסרת ערך חסר), יוצר גרפים ודוח תובנות, מפרסם את חוזה הנתונים ושומר טביעות אצבע של קובצי המסירה.</p>
+        <a class="more" href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer">analyst_crew.py ←</a>
+      </div>
+      <div class="row rv d1">
+        <div><div class="tag">GATE</div><h3><b>בדיקת</b> מעבר</h3><div class="meta">ה־Flow</div></div>
+        <p>ה־Flow בודק את שלמות המסירה, את החוזה ואת הנתונים. רק אם הכול עובר – צוות המידול מופעל. כישלון עוצר את התהליך.</p>
+        <a class="more" href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer">project_flow.py ←</a>
+      </div>
+      <div class="row rv d2">
+        <div><div class="tag">CREW 02</div><h3><b>צוות</b> מדעני הנתונים</h3><div class="meta">3 סוכנים</div></div>
+        <p>משווה קו בסיס ושתי גרסאות CatBoost, שומר מודל ודוחות, ומאמת מחדש את מדדי הבדיקה מול התחזיות האמיתיות.</p>
+        <a class="more" href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer">scientist_crew.py ←</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat rv"><div class="v"><span data-n="500">500</span></div><div class="l">פוסטים שנותחו</div></div>
+      <div class="stat rv d1"><div class="v"><span data-n="2">2</span></div><div class="l">צוותי CrewAI</div></div>
+      <div class="stat rv d2"><div class="v"><span data-n="5">5</span></div><div class="l">תצוגות בדשבורד</div></div>
+      <div class="stat rv d3"><div class="v"><span data-n="27">27</span><small>+</small></div><div class="l">בדיקות ממשק ואבטחה</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap split">
+    <div class="rv">
+      <div class="eyebrow">תוצאות</div>
+      <h2>כשהמודל לא מנצח – <b>אומרים את זה</b></h2>
+      <p>באימות הצולב, CatBoost שיפר מעט את קו הבסיס. בקבוצת הבדיקה, קו הבסיס (חציון קבוע) דווקא ניצח.</p>
+      <p>זו בדיוק התובנה שהפרויקט נועד לחשוף: הצלחת התהליך אינה מעידה על איכות תחזית מספקת לשימוש עסקי.</p>
+    </div>
+    <div class="chart rv d1" id="chart">
+      <h4>שגיאה מוחלטת ממוצעת (MAE) – נמוך יותר טוב יותר</h4>
+      <div class="bar"><div class="top"><span>אימות צולב · CatBoost עומק 4</span><span>146.6</span></div><div class="track"><div class="fill-bar c1" style="--w:96%"></div></div></div>
+      <div class="bar"><div class="top"><span>אימות צולב · קו בסיס</span><span>152.4</span></div><div class="track"><div class="fill-bar c2" style="--w:100%"></div></div></div>
+      <div class="bar"><div class="top"><span>קבוצת בדיקה · CatBoost</span><span>125.5</span></div><div class="track"><div class="fill-bar c3" style="--w:82%"></div></div></div>
+      <div class="bar"><div class="top"><span>קבוצת בדיקה · קו בסיס</span><span>120.5</span></div><div class="track"><div class="fill-bar c2" style="--w:79%"></div></div></div>
+      <div class="note">אימון: 399 פוסטים · בדיקה: 100 פוסטים · בחירה באימות צולב ב־5 חלוקות</div>
+    </div>
+  </div>
+</section>
+
+<section class="soft" id="dashboard">
+  <div class="wrap split">
+    <div class="mock rv" id="mock">
+      <div class="bar-top"><i></i><i></i><i></i></div>
+      <div class="body">
+        <aside><span class="on">סקירה</span><span>סוגי פוסטים</span><span>מודלים</span><span>דוחות</span><span>מערכת</span></aside>
+        <div class="main">
+          <div class="kpis">
+            <div class="kpi"><b>499</b><span>פוסטים</span></div>
+            <div class="kpi"><b>271</b><span>חציון · וידאו</span></div>
+            <div class="kpi"><b>122</b><span>חציון · תמונה</span></div>
+          </div>
+          <div class="cols"><div style="height:100%"></div><div style="height:69%"></div><div style="height:45%"></div><div style="height:19%"></div></div>
+          <div class="cols-l"><span>וידאו</span><span>סטטוס</span><span>תמונה</span><span>קישור</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="rv d1">
+      <div class="eyebrow">דשבורד</div>
+      <h2>סביבת עבודה בעברית, <b>RTL מלא</b></h2>
+      <ul class="feats">
+        <li>ניווט בין חמש תצוגות, מדדים וגרפים אינטראקטיביים</li>
+        <li>סינון לפי סוג פוסט, חודש פרסום וקידום ממומן או אורגני, והורדת CSV מסונן</li>
+        <li>דוחות להורדה והיסטוריית ריצות</li>
+        <li>שלוש ערכות צבעים ומצב כהה</li>
+        <li>קוד גישה מקומי ושרת המוגבל למחשב המקומי</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">התהליך</div>
+      <h2>מהנתונים הגולמיים <b>לתוצר מאומת</b></h2>
+    </div>
+    <div class="pipe">
+      <div class="step rv"><i>01</i><h3>ניקוי</h3><p>הסרת שורה עם ערך Paid חסר; 499 שורות, 7 עמודות.</p></div>
+      <div class="step rv d1"><i>02</i><h3>חוזה ומסירה</h3><p>פרסום חוזה ו־manifest עם טביעות SHA-256.</p></div>
+      <div class="step gate rv d2"><i>03</i><h3>בדיקת מעבר</h3><p>שלמות, חוזה ונתונים – או שהתהליך נעצר.</p></div>
+      <div class="step rv d3"><i>04</i><h3>מידול</h3><p>קו בסיס מול CatBoost, עם אימות צולב.</p></div>
+      <div class="step rv d4"><i>05</i><h3>אימות והצגה</h3><p>חישוב מדדים מחדש, דוחות ודשבורד.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="soft" id="limits">
+  <div class="wrap">
+    <div class="honest rv">
+      <div>
+        <div class="eyebrow">שקיפות</div>
+        <h2>מגבלות שמוצהרות <b>מראש</b></h2>
+        <p>פרויקט לימודי טוב מראה גם איפה הוא לא מספיק. כל אלה מתועדים במאגר.</p>
+      </div>
+      <ul>
+        <li>מאגר קטן מעמוד יחיד, עם שבעה סרטונים בלבד</li>
+        <li>פיצול אקראי אינו בודק חיזוי של תקופות עתידיות</li>
+        <li>לא נבדקה הכללה לאינסטגרם או לחשבונות אחרים</li>
+        <li>טביעות אצבע מזהות שינוי, אך אינן חתימה דיגיטלית</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="head rv"><div class="eyebrow">טכנולוגיות</div><h2>הכלים <b>מאחורי הקלעים</b></h2></div>
+    <div class="tech rv">
+      <span>Python 3.13</span><span>CrewAI</span><span>Anthropic Claude</span><span>Pandas</span><span>Scikit-learn</span><span>CatBoost</span><span>Matplotlib</span><span>Altair</span><span>Streamlit</span><span>Supabase (אופציונלי)</span><span>Obsidian</span><span>Git</span>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div class="wrap rv">
+    <div class="eyebrow">מוכנים לנסות?</div>
+    <h2>הקוד, התיעוד והבדיקות <b>פתוחים</b></h2>
+    <a class="btn fill" href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer">למאגר ב־GitHub
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="cols3">
+      <div>
+        <div class="logo"><svg viewBox="0 0 40 40"><polygon points="20,3 4,35 20,25" fill="#17a2b8"/><polygon points="20,3 36,35 20,25" fill="#8fdcea"/><polygon points="4,35 36,35 20,25" fill="#2b6aa3"/></svg><span>Creator <b>Insights</b></span></div>
+        <p>פרויקט לימודי לניתוח ביצועי תוכן, השוואת מודלים והערכת מגבלות החיזוי.</p>
+      </div>
+      <div><h4>ניווט</h4><a href="#about">הפרויקט</a><a href="#crews">הצוותים</a><a href="#results">תוצאות</a><a href="#dashboard">דשבורד</a><a href="https://creator-insights-f3e3mylxf4djfkityn79jt.streamlit.app/" target="_blank" rel="noopener noreferrer">דשבורד חי</a></div>
+      <div><h4>קישורים</h4><a href="https://github.com/ido-318/Creator-Insights" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://archive.ics.uci.edu/dataset/368/facebook+metrics" target="_blank" rel="noopener noreferrer">נתוני המקור (UCI)</a></div>
+    </div>
+    <div class="copy"><span>© 2026 Creator Insights</span><span>האתר אינו משתמש בעוגיות ואינו אוסף מידע אישי</span></div>
+  </div>
+</footer>
+<button type="button" id="cb-open" class="cb-fab" aria-label="פתיחת צ'אט שאלות על הפרויקט" aria-expanded="false" aria-controls="cb">
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg>
+</button>
+<section id="cb" class="cb" hidden role="dialog" aria-label="שאלות על הפרויקט">
+  <header class="cb-head"><div><b>שאלות על הפרויקט</b><span>תשובות מוכנות, בלי איסוף מידע</span></div>
+    <button type="button" id="cb-close" aria-label="סגירת הצ'אט">×</button></header>
+  <div id="cb-log" class="cb-log" role="log" aria-live="polite"></div>
+  <div id="cb-chips" class="cb-chips"></div>
+  <form id="cb-form" class="cb-form" autocomplete="off">
+    <input id="cb-input" type="text" maxlength="200" placeholder="כתבו שאלה…" aria-label="שאלה">
+    <button type="submit" aria-label="שליחה">שליחה</button>
+  </form>
+</section>
+<script src="/app.js" defer></script>
+</body>
+</html>
